@@ -28,6 +28,9 @@
             color: var(--text); 
             transition: all 0.3s ease; 
             overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
         }
         .app { 
             background: var(--bg-card); 
@@ -35,7 +38,11 @@
             box-shadow: 0 25px 60px var(--shadow); 
             position: relative;
             z-index: 1;
-            display: none; /* Скрыт по умолчанию */
+            display: none;
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 28px 36px;
+            border-radius: 32px;
         }
         
         /* ===== ТАЙМЕР ===== */
@@ -51,11 +58,10 @@
             align-items: center;
             justify-content: center;
             z-index: 9999;
-            transition: opacity 1s ease, visibility 1s ease;
+            transition: opacity 1s ease;
         }
         .timer-overlay.hidden {
             opacity: 0;
-            visibility: hidden;
             pointer-events: none;
         }
         .timer-container {
@@ -67,6 +73,8 @@
             box-shadow: 0 0 60px rgba(247,184,43,0.1);
             max-width: 600px;
             width: 90%;
+            position: relative;
+            z-index: 10;
         }
         .timer-logo {
             width: 120px;
@@ -143,6 +151,17 @@
             font-weight: 600;
         }
 
+        /* ===== КНОПКА ВХОДА ===== */
+        .admin-login-btn {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(247,184,43,0.1);
+        }
+        .admin-login-btn .btn {
+            padding: 10px 40px;
+            font-size: 1rem;
+        }
+
         /* ===== АНИМАЦИИ ===== */
         @keyframes floatLogo {
             0%, 100% { transform: translateY(0px) scale(1); }
@@ -153,9 +172,9 @@
             50% { transform: scale(1.03); }
         }
         @keyframes fall {
-            0% { transform: translateY(-50px) rotate(0deg) scale(0.5); opacity: 0; }
-            10% { opacity: 0.7; }
-            90% { opacity: 0.7; }
+            0% { transform: translateY(-100px) rotate(0deg) scale(0.3); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
             100% { transform: translateY(110vh) rotate(720deg) scale(1.2); opacity: 0; }
         }
 
@@ -167,7 +186,7 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 0;
+            z-index: 1;
             overflow: hidden;
         }
         .falling-item {
@@ -176,47 +195,308 @@
             animation: fall linear infinite;
             opacity: 0.5;
             filter: drop-shadow(0 0 10px rgba(247,184,43,0.2));
+            will-change: transform;
         }
 
         /* ===== КНОПКИ ===== */
-        .btn { padding: 8px 22px; border: none; border-radius: 40px; font-weight: 600; cursor: pointer; transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1); text-decoration: none; display: inline-block; font-size: 0.9rem; }
-        .btn-gold { background: linear-gradient(135deg, #f7b82b, #e09d1a); color: #0a0a0f; box-shadow: 0 4px 20px rgba(247,184,43,0.25); }
-        .btn-gold:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 35px rgba(247,184,43,0.4); }
-        .btn-dark { background: rgba(255,255,255,0.06); color: #fde3a0; border: 1px solid rgba(247,184,43,0.15); }
-        .btn-dark:hover { background: rgba(247,184,43,0.12); border-color: rgba(247,184,43,0.3); transform: translateY(-2px); }
+        .btn { 
+            padding: 8px 22px; 
+            border: none; 
+            border-radius: 40px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1); 
+            text-decoration: none; 
+            display: inline-block; 
+            font-size: 0.9rem; 
+        }
+        .btn-gold { 
+            background: linear-gradient(135deg, #f7b82b, #e09d1a); 
+            color: #0a0a0f; 
+            box-shadow: 0 4px 20px rgba(247,184,43,0.25); 
+        }
+        .btn-gold:hover { 
+            transform: translateY(-3px) scale(1.02); 
+            box-shadow: 0 8px 35px rgba(247,184,43,0.4); 
+        }
+        .btn-dark { 
+            background: rgba(255,255,255,0.06); 
+            color: #fde3a0; 
+            border: 1px solid rgba(247,184,43,0.15); 
+        }
+        .btn-dark:hover { 
+            background: rgba(247,184,43,0.12); 
+            border-color: rgba(247,184,43,0.3); 
+            transform: translateY(-2px); 
+        }
 
-        .theme-toggle { cursor: pointer; background: none; border: 1px solid var(--border); border-radius: 50%; padding: 8px; font-size: 1.2rem; color: var(--text); transition: all 0.3s ease; }
+        .theme-toggle { 
+            cursor: pointer; 
+            background: none; 
+            border: 1px solid var(--border); 
+            border-radius: 50%; 
+            padding: 8px; 
+            font-size: 1.2rem; 
+            color: var(--text); 
+            transition: all 0.3s ease; 
+        }
         .theme-toggle:hover { transform: rotate(20deg); }
 
-        .slider-container { position: relative; overflow: hidden; border-radius: 20px; margin-bottom: 20px; background: var(--bg-card); border: 1px solid var(--border); }
-        .slider-track { display: flex; transition: transform 0.5s ease; }
-        .slider-slide { min-width: 100%; padding: 30px; text-align: center; background: linear-gradient(135deg, rgba(247,184,43,0.1), rgba(247,184,43,0.05)); border-radius: 20px; }
-        .slider-slide h3 { font-size: 1.8rem; margin-bottom: 10px; color: #f7b82b; }
-        .slider-slide p { color: var(--text-secondary); font-size: 1.1rem; }
-        .slider-slide img { max-width: 100%; max-height: 200px; border-radius: 16px; margin-bottom: 10px; object-fit: cover; }
-        .slider-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer; z-index: 10; transition: all 0.3s ease; }
-        .slider-btn:hover { background: #f7b82b; color: #000; }
+        /* ===== СЛАЙДЕР ===== */
+        .slider-container { 
+            position: relative; 
+            overflow: hidden; 
+            border-radius: 20px; 
+            margin-bottom: 20px; 
+            background: var(--bg-card); 
+            border: 1px solid var(--border); 
+        }
+        .slider-track { 
+            display: flex; 
+            transition: transform 0.5s ease; 
+        }
+        .slider-slide { 
+            min-width: 100%; 
+            padding: 30px; 
+            text-align: center; 
+            background: linear-gradient(135deg, rgba(247,184,43,0.1), rgba(247,184,43,0.05)); 
+            border-radius: 20px; 
+        }
+        .slider-slide h3 { 
+            font-size: 1.8rem; 
+            margin-bottom: 10px; 
+            color: #f7b82b; 
+        }
+        .slider-slide p { 
+            color: var(--text-secondary); 
+            font-size: 1.1rem; 
+        }
+        .slider-slide img { 
+            max-width: 100%; 
+            max-height: 200px; 
+            border-radius: 16px; 
+            margin-bottom: 10px; 
+            object-fit: cover; 
+        }
+        .slider-btn { 
+            position: absolute; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            background: rgba(0,0,0,0.5); 
+            color: white; 
+            border: none; 
+            border-radius: 50%; 
+            width: 40px; 
+            height: 40px; 
+            font-size: 1.2rem; 
+            cursor: pointer; 
+            z-index: 10; 
+            transition: all 0.3s ease; 
+        }
+        .slider-btn:hover { 
+            background: #f7b82b; 
+            color: #000; 
+        }
         .slider-btn.prev { left: 10px; }
         .slider-btn.next { right: 10px; }
-        .slider-dots { display: flex; justify-content: center; gap: 8px; padding: 10px 0; }
-        .slider-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); border: none; cursor: pointer; transition: all 0.3s ease; }
-        .slider-dot.active { background: #f7b82b; transform: scale(1.2); }
+        .slider-dots { 
+            display: flex; 
+            justify-content: center; 
+            gap: 8px; 
+            padding: 10px 0; 
+        }
+        .slider-dot { 
+            width: 10px; 
+            height: 10px; 
+            border-radius: 50%; 
+            background: var(--border); 
+            border: none; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+        }
+        .slider-dot.active { 
+            background: #f7b82b; 
+            transform: scale(1.2); 
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid rgba(247,184,43,0.15);
+            margin-bottom: 24px;
+        }
+        .logo h1 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #f7b82b, #f5a623, #f7b82b);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            line-height: 1;
+        }
+        .logo span {
+            color: rgba(253,227,160,0.6);
+            font-size: 0.85rem;
+            letter-spacing: 8px;
+            display: block;
+            margin-top: 2px;
+        }
+        .user-panel {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: rgba(255,255,255,0.04);
+            padding: 6px 18px 6px 14px;
+            border-radius: 60px;
+            border: 1px solid rgba(247,184,43,0.12);
+            backdrop-filter: blur(10px);
+        }
+        .user-panel .username { color: #fde3a0; font-weight: 500; font-size: 0.95rem; }
+        .user-panel .balance { 
+            color: #f7b82b; 
+            font-weight: 700; 
+            font-size: 1rem; 
+            background: rgba(247,184,43,0.12); 
+            padding: 4px 14px; 
+            border-radius: 40px; 
+            border: 1px solid rgba(247,184,43,0.15); 
+        }
+        .user-panel a {
+            color: rgba(253,227,160,0.7);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 4px 10px;
+            transition: all 0.3s ease;
+            border-radius: 30px;
+            font-size: 0.9rem;
+        }
+        .user-panel a:hover {
+            background: rgba(247,184,43,0.12);
+            color: #f7b82b;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 8px 0 20px;
+            padding: 6px 0;
+        }
+        .nav-links a {
+            color: rgba(160,144,112,0.7);
+            text-decoration: none;
+            padding: 6px 18px;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .nav-links a:hover {
+            background: rgba(247,184,43,0.08);
+            color: #f7b82b;
+        }
+        .nav-links a.active {
+            background: rgba(247,184,43,0.12);
+            color: #f7b82b;
+            border: 1px solid rgba(247,184,43,0.15);
+        }
+
+        .flash {
+            padding: 12px 22px;
+            border-radius: 30px;
+            margin-bottom: 16px;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        .flash.success { background: rgba(50,255,100,0.08); color: #55ff88; border: 1px solid rgba(50,255,100,0.12); }
+        .flash.danger { background: rgba(255,50,50,0.08); color: #ff5555; border: 1px solid rgba(255,50,50,0.12); }
+        .flash.warning { background: rgba(255,170,0,0.08); color: #ffbb33; border: 1px solid rgba(255,170,0,0.12); }
+        .flash.info { background: rgba(68,136,255,0.08); color: #88bbff; border: 1px solid rgba(68,136,255,0.12); }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 24px;
+        }
+        .product-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(247,184,43,0.08);
+            border-radius: 20px;
+            padding: 20px 16px 18px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.22,1,0.36,1);
+        }
+        .product-card:hover {
+            border-color: rgba(247,184,43,0.25);
+            box-shadow: 0 8px 40px rgba(247,184,43,0.06);
+            transform: translateY(-4px);
+        }
+        .product-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 14px;
+            background: rgba(0,0,0,0.3);
+        }
+        .product-card .no-image { font-size: 4rem; display: block; padding: 30px 0; }
+        .product-card .category { color: rgba(247,184,43,0.5); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; margin-top: 8px; }
+        .product-card h3 { color: #fde3a0; font-size: 1.1rem; margin: 6px 0 4px; }
+        .product-card .desc { color: rgba(160,144,112,0.6); font-size: 0.85rem; margin: 6px 0 10px; min-height: 40px; }
+        .product-card .price { color: #f7b82b; font-size: 1.4rem; font-weight: 700; }
+        .product-card .price span { font-size: 0.8rem; color: rgba(160,144,112,0.5); font-weight: 400; }
+        .product-card .stock { color: rgba(160,144,112,0.4); font-size: 0.75rem; margin: 4px 0 14px; }
+
+        .auth-form {
+            max-width: 420px;
+            margin: 40px auto;
+            background: rgba(255,255,255,0.03);
+            padding: 40px 36px;
+            border-radius: 28px;
+            border: 1px solid rgba(247,184,43,0.08);
+        }
+        .auth-form h2 { color: #f7b82b; text-align: center; margin-bottom: 28px; font-weight: 700; }
+        .auth-form input {
+            width: 100%;
+            padding: 12px 18px;
+            margin-bottom: 14px;
+            border-radius: 30px;
+            border: 1px solid rgba(247,184,43,0.1);
+            background: rgba(0,0,0,0.3);
+            color: #fde3a0;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        .auth-form input:focus {
+            outline: none;
+            border-color: rgba(247,184,43,0.3);
+            box-shadow: 0 0 30px rgba(247,184,43,0.05);
+            transform: scale(1.01);
+        }
+        .auth-form .btn { width: 100%; margin-top: 8px; }
 
         @media (max-width: 600px) {
             .timer-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
             .timer-number { font-size: 2rem; }
             .timer-container { padding: 20px; }
             .timer-logo { width: 80px; height: 80px; }
-            .app { padding: 16px; border-radius: 20px; }
+            .app { padding: 16px; border-radius: 20px; margin: 10px; }
             .slider-slide { padding: 16px; }
             .slider-slide h3 { font-size: 1.2rem; }
             .falling-item { font-size: 1.2rem; }
+            .header { flex-direction: column; align-items: stretch; }
+            .user-panel { flex-wrap: wrap; justify-content: center; }
+            .products-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
         }
     </style>
 </head>
 <body>
 
-<!-- ===== ПАДАЮЩИЕ ПРЕДМЕТЫ ===== -->
+<!-- ===== ПАДАЮЩИЕ ПРЕДМЕТЫ (ТОЛЬКО НА ТАЙМЕРЕ) ===== -->
 <div class="falling-items" id="fallingItems"></div>
 
 <!-- ===== ТАЙМЕР ===== -->
@@ -253,9 +533,9 @@
             🐝 <span>Скоро откроем!</span> Следите за обновлениями
         </div>
         
-        <!-- ===== ВХОД ДЛЯ АДМИНА ===== -->
-        <div style="margin-top:20px; padding-top:20px; border-top:1px solid rgba(247,184,43,0.1);">
-            <a href="{{ url_for('login') }}" class="btn btn-gold" style="padding:8px 30px; font-size:0.9rem;">
+        <!-- ===== КНОПКА ВХОДА ===== -->
+        <div class="admin-login-btn">
+            <a href="{{ url_for('login') }}" class="btn btn-gold">
                 🔑 Вход для администратора
             </a>
             <p style="color:rgba(160,144,112,0.3); font-size:0.7rem; margin-top:8px;">
@@ -343,46 +623,34 @@
 </div>
 
 <script>
-// ===== ПАДАЮЩИЕ ПРЕДМЕТЫ =====
+// ===== ПАДАЮЩИЕ ПРЕДМЕТЫ (ТОЛЬКО НА ТАЙМЕРЕ) =====
 function createFallingItems() {
     const container = document.getElementById('fallingItems');
-    const items = ['🍯', '🐝', '🌻', '🍄', '🍃', '✨', '⭐', '🍂', '🌸', '🌿', '🍀', '🌺'];
-    const count = 30;
+    if (!container) return;
+    container.innerHTML = '';
+    const items = ['🍯', '🐝', '🌻', '🍄', '🍃', '✨', '⭐', '🍂', '🌸', '🌿', '🍀', '🌺', '🪷', '🍁', '🌾'];
+    const count = 25;
     for (let i = 0; i < count; i++) {
         const el = document.createElement('div');
         el.className = 'falling-item';
         el.textContent = items[Math.floor(Math.random() * items.length)];
         el.style.left = Math.random() * 100 + '%';
-        el.style.fontSize = (1 + Math.random() * 2) + 'rem';
-        el.style.animationDuration = (8 + Math.random() * 12) + 's';
-        el.style.animationDelay = (Math.random() * 15) + 's';
-        el.style.opacity = 0.2 + Math.random() * 0.4;
+        el.style.fontSize = (1.2 + Math.random() * 2.5) + 'rem';
+        el.style.animationDuration = (10 + Math.random() * 15) + 's';
+        el.style.animationDelay = (Math.random() * 20) + 's';
+        el.style.opacity = 0.15 + Math.random() * 0.4;
         container.appendChild(el);
     }
 }
 
 // ===== ПРОВЕРКА ДОСТУПА =====
 function checkAccess() {
-    const overlay = document.getElementById('timerOverlay');
-    const mainApp = document.getElementById('mainApp');
-    
-    // Проверяем, есть ли сессия админа (передаётся из Flask)
     const isAdmin = {{ 'true' if session.role == 'admin' else 'false' }};
-    
-    // Проверяем, есть ли в URL секретный ключ
     const urlParams = new URLSearchParams(window.location.search);
     const secretKey = urlParams.get('secret');
     const adminSecret = 'medovik2026';
     
-    // Если админ или секретный ключ правильный
-    if (isAdmin || secretKey === adminSecret) {
-        overlay.style.display = 'none';
-        mainApp.style.display = 'block';
-        document.body.style.overflow = 'auto';
-        return true;
-    }
-    
-    return false;
+    return isAdmin || secretKey === adminSecret;
 }
 
 // ===== ТАЙМЕР =====
@@ -403,14 +671,13 @@ function startTimer() {
         const now = new Date().getTime();
         let diff = targetDate - now;
         
-        // Если таймер закончился или админ уже зашёл
         if (diff <= 0 || checkAccess()) {
             overlay.classList.add('hidden');
             setTimeout(() => {
                 overlay.style.display = 'none';
                 mainApp.style.display = 'block';
                 document.body.style.overflow = 'auto';
-            }, 1000);
+            }, 500);
             return;
         }
         
@@ -493,19 +760,17 @@ if (savedTheme) {
 
 // ===== ЗАПУСК =====
 document.addEventListener('DOMContentLoaded', function() {
-    // Сначала проверяем доступ
+    createFallingItems();
+    
     if (!checkAccess()) {
-        // Если доступа нет — показываем таймер
         document.getElementById('timerOverlay').style.display = 'flex';
         document.getElementById('mainApp').style.display = 'none';
         document.body.style.overflow = 'hidden';
-        createFallingItems();
         startTimer();
     } else {
         document.getElementById('timerOverlay').style.display = 'none';
         document.getElementById('mainApp').style.display = 'block';
         document.body.style.overflow = 'auto';
-        createFallingItems();
     }
 });
 </script>
