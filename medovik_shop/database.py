@@ -1,25 +1,25 @@
+import os
 import sqlite3
 
 class Database:
-    def __init__(self, db_name='medovik.db'):
-        self.db_name = db_name
+    def __init__(self, db_name=None):
+        # Если не указано имя БД, берём из переменной окружения или используем по умолчанию
+        if db_name is None:
+            self.db_path = os.environ.get('DB_PATH', 'medovik.db')
+        else:
+            self.db_path = db_name
         self.init_db()
 
     def get_connection(self):
-        return sqlite3.connect(self.db_name)
+        return sqlite3.connect(self.db_path)
 
     def init_db(self):
         conn = self.get_connection()
         cur = conn.cursor()
 
-        cur.execute("DROP TABLE IF EXISTS order_items")
-        cur.execute("DROP TABLE IF EXISTS orders")
-        cur.execute("DROP TABLE IF EXISTS products")
-        cur.execute("DROP TABLE IF EXISTS users")
-
         # Таблица пользователей
         cur.execute('''
-            CREATE TABLE users (
+            CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT UNIQUE NOT NULL,
                 password TEXT NOT NULL,
@@ -35,7 +35,7 @@ class Database:
 
         # Таблица товаров
         cur.execute('''
-            CREATE TABLE products (
+            CREATE TABLE IF NOT EXISTS products (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 description TEXT,
@@ -48,7 +48,7 @@ class Database:
 
         # Таблица заказов
         cur.execute('''
-            CREATE TABLE orders (
+            CREATE TABLE IF NOT EXISTS orders (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER NOT NULL,
                 total INTEGER NOT NULL,
@@ -62,7 +62,7 @@ class Database:
 
         # Таблица товаров в заказе
         cur.execute('''
-            CREATE TABLE order_items (
+            CREATE TABLE IF NOT EXISTS order_items (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 order_id INTEGER NOT NULL,
                 product_id INTEGER NOT NULL,
@@ -73,44 +73,50 @@ class Database:
             )
         ''')
 
-        import hashlib
-        admin_pass = hashlib.sha256('admin123'.encode()).hexdigest()
-        cur.execute(
-            "INSERT INTO users (username, password, role, balance) VALUES (?, ?, ?, ?)",
-            ('admin', admin_pass, 'admin', 9999)
-        )
-
-        # ===== ТОЛЬКО НОВЫЕ КАТЕГОРИИ! =====
-        items = [
-            # 🔧 Инструменты
-            ('⛏️ Алмазная кирка', 'Прочная алмазная кирка', 'инструменты', 50, 20, ''),
-            ('🪓 Алмазный топор', 'Острый алмазный топор', 'инструменты', 45, 15, ''),
-            ('🧹 Алмазная лопата', 'Удобная алмазная лопата', 'инструменты', 30, 25, ''),
-            ('⛏️ Железная кирка', 'Надёжная железная кирка', 'инструменты', 20, 40, ''),
-
-            # 🧱 Блоки
-            ('🧱 Каменный блок', 'Прочный каменный блок', 'блоки', 5, 100, ''),
-            ('🪵 Древесный блок', 'Натуральный древесный блок', 'блоки', 3, 150, ''),
-            ('🪟 Стеклянный блок', 'Прозрачный стеклянный блок', 'блоки', 4, 80, ''),
-            ('🧱 Кирпичный блок', 'Красивый кирпичный блок', 'блоки', 8, 60, ''),
-
-            # 🍔 Еда
-            ('🍞 Хлеб', 'Свежий пшеничный хлеб', 'еда', 2, 200, ''),
-            ('🍰 Торт', 'Вкусный торт с кремом', 'еда', 15, 30, ''),
-            ('🍪 Печенье', 'Хрустящее печенье', 'еда', 3, 150, ''),
-            ('🍲 Суп', 'Горячий грибной суп', 'еда', 6, 50, ''),
-
-            # 📦 Разное
-            ('🏹 Стрелы', 'Острые стрелы для лука', 'разное', 10, 100, ''),
-            ('🔥 Факел', 'Яркий факел для освещения', 'разное', 2, 200, ''),
-            ('📖 Книга', 'Книга с древними знаниями', 'разное', 25, 20, ''),
-            ('🧪 Зелье', 'Волшебное зелье', 'разное', 30, 15, ''),
-        ]
-        for name, desc, cat, price, stock, img in items:
+        # Проверяем, есть ли админ
+        cur.execute("SELECT * FROM users WHERE username='admin'")
+        if not cur.fetchone():
+            import hashlib
+            admin_pass = hashlib.sha256('admin123'.encode()).hexdigest()
             cur.execute(
-                "INSERT INTO products (name, description, category, price, stock, image) VALUES (?, ?, ?, ?, ?, ?)",
-                (name, desc, cat, price, stock, img)
+                "INSERT INTO users (username, password, role, balance) VALUES (?, ?, ?, ?)",
+                ('admin', admin_pass, 'admin', 9999)
             )
+
+        # Проверяем, есть ли товары
+        cur.execute("SELECT * FROM products")
+        if not cur.fetchone():
+            # ===== ТОЛЬКО НОВЫЕ КАТЕГОРИИ! =====
+            items = [
+                # 🔧 Инструменты
+                ('⛏️ Алмазная кирка', 'Прочная алмазная кирка', 'инструменты', 50, 20, ''),
+                ('🪓 Алмазный топор', 'Острый алмазный топор', 'инструменты', 45, 15, ''),
+                ('🧹 Алмазная лопата', 'Удобная алмазная лопата', 'инструменты', 30, 25, ''),
+                ('⛏️ Железная кирка', 'Надёжная железная кирка', 'инструменты', 20, 40, ''),
+
+                # 🧱 Блоки
+                ('🧱 Каменный блок', 'Прочный каменный блок', 'блоки', 5, 100, ''),
+                ('🪵 Древесный блок', 'Натуральный древесный блок', 'блоки', 3, 150, ''),
+                ('🪟 Стеклянный блок', 'Прозрачный стеклянный блок', 'блоки', 4, 80, ''),
+                ('🧱 Кирпичный блок', 'Красивый кирпичный блок', 'блоки', 8, 60, ''),
+
+                # 🍔 Еда
+                ('🍞 Хлеб', 'Свежий пшеничный хлеб', 'еда', 2, 200, ''),
+                ('🍰 Торт', 'Вкусный торт с кремом', 'еда', 15, 30, ''),
+                ('🍪 Печенье', 'Хрустящее печенье', 'еда', 3, 150, ''),
+                ('🍲 Суп', 'Горячий грибной суп', 'еда', 6, 50, ''),
+
+                # 📦 Разное
+                ('🏹 Стрелы', 'Острые стрелы для лука', 'разное', 10, 100, ''),
+                ('🔥 Факел', 'Яркий факел для освещения', 'разное', 2, 200, ''),
+                ('📖 Книга', 'Книга с древними знаниями', 'разное', 25, 20, ''),
+                ('🧪 Зелье', 'Волшебное зелье', 'разное', 30, 15, ''),
+            ]
+            for name, desc, cat, price, stock, img in items:
+                cur.execute(
+                    "INSERT INTO products (name, description, category, price, stock, image) VALUES (?, ?, ?, ?, ?, ?)",
+                    (name, desc, cat, price, stock, img)
+                )
 
         conn.commit()
         conn.close()
