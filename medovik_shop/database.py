@@ -15,6 +15,7 @@ class Database:
         conn = self.get_connection()
         cur = conn.cursor()
 
+        # Таблица пользователей
         cur.execute('''
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -30,6 +31,7 @@ class Database:
             )
         ''')
 
+        # Таблица товаров (с колонкой discount!)
         cur.execute('''
             CREATE TABLE IF NOT EXISTS products (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,10 +40,12 @@ class Database:
                 category TEXT,
                 price INTEGER NOT NULL,
                 stock INTEGER DEFAULT 0,
-                image TEXT
+                image TEXT,
+                discount INTEGER DEFAULT 0
             )
         ''')
 
+        # Таблица заказов
         cur.execute('''
             CREATE TABLE IF NOT EXISTS orders (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -55,6 +59,7 @@ class Database:
             )
         ''')
 
+        # Таблица товаров в заказе
         cur.execute('''
             CREATE TABLE IF NOT EXISTS order_items (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -67,6 +72,20 @@ class Database:
             )
         ''')
 
+        # Таблица для рекламных слайдов
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS ads (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                text TEXT,
+                link TEXT,
+                image TEXT,
+                active INTEGER DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+
+        # Админ
         import hashlib
         admin_pass = hashlib.sha256('admin123'.encode()).hexdigest()
         cur.execute("SELECT * FROM users WHERE username='admin'")
@@ -76,35 +95,59 @@ class Database:
                 ('admin', admin_pass, 'admin', 9999)
             )
 
+        # Товары (только новые категории со скидками!)
         cur.execute("SELECT * FROM products")
         if not cur.fetchone():
             items = [
-                ('⛏️ Алмазная кирка', 'Прочная алмазная кирка', 'инструменты', 50, 20, ''),
-                ('🪓 Алмазный топор', 'Острый алмазный топор', 'инструменты', 45, 15, ''),
-                ('🧹 Алмазная лопата', 'Удобная алмазная лопата', 'инструменты', 30, 25, ''),
-                ('⛏️ Железная кирка', 'Надёжная железная кирка', 'инструменты', 20, 40, ''),
-                ('🧱 Каменный блок', 'Прочный каменный блок', 'блоки', 5, 100, ''),
-                ('🪵 Древесный блок', 'Натуральный древесный блок', 'блоки', 3, 150, ''),
-                ('🪟 Стеклянный блок', 'Прозрачный стеклянный блок', 'блоки', 4, 80, ''),
-                ('🧱 Кирпичный блок', 'Красивый кирпичный блок', 'блоки', 8, 60, ''),
-                ('🍞 Хлеб', 'Свежий пшеничный хлеб', 'еда', 2, 200, ''),
-                ('🍰 Торт', 'Вкусный торт с кремом', 'еда', 15, 30, ''),
-                ('🍪 Печенье', 'Хрустящее печенье', 'еда', 3, 150, ''),
-                ('🍲 Суп', 'Горячий грибной суп', 'еда', 6, 50, ''),
-                ('🏹 Стрелы', 'Острые стрелы для лука', 'разное', 10, 100, ''),
-                ('🔥 Факел', 'Яркий факел для освещения', 'разное', 2, 200, ''),
-                ('📖 Книга', 'Книга с древними знаниями', 'разное', 25, 20, ''),
-                ('🧪 Зелье', 'Волшебное зелье', 'разное', 30, 15, ''),
+                # 🔧 Инструменты
+                ('⛏️ Алмазная кирка', 'Прочная алмазная кирка', 'инструменты', 50, 20, '', 10),
+                ('🪓 Алмазный топор', 'Острый алмазный топор', 'инструменты', 45, 15, '', 5),
+                ('🧹 Алмазная лопата', 'Удобная алмазная лопата', 'инструменты', 30, 25, '', 0),
+                ('⛏️ Железная кирка', 'Надёжная железная кирка', 'инструменты', 20, 40, '', 0),
+
+                # 🧱 Блоки
+                ('🧱 Каменный блок', 'Прочный каменный блок', 'блоки', 5, 100, '', 0),
+                ('🪵 Древесный блок', 'Натуральный древесный блок', 'блоки', 3, 150, '', 0),
+                ('🪟 Стеклянный блок', 'Прозрачный стеклянный блок', 'блоки', 4, 80, '', 0),
+                ('🧱 Кирпичный блок', 'Красивый кирпичный блок', 'блоки', 8, 60, '', 0),
+
+                # 🍔 Еда
+                ('🍞 Хлеб', 'Свежий пшеничный хлеб', 'еда', 2, 200, '', 0),
+                ('🍰 Торт', 'Вкусный торт с кремом', 'еда', 15, 30, '', 15),
+                ('🍪 Печенье', 'Хрустящее печенье', 'еда', 3, 150, '', 0),
+                ('🍲 Суп', 'Горячий грибной суп', 'еда', 6, 50, '', 0),
+
+                # 📦 Разное
+                ('🏹 Стрелы', 'Острые стрелы для лука', 'разное', 10, 100, '', 0),
+                ('🔥 Факел', 'Яркий факел для освещения', 'разное', 2, 200, '', 0),
+                ('📖 Книга', 'Книга с древними знаниями', 'разное', 25, 20, '', 20),
+                ('🧪 Зелье', 'Волшебное зелье', 'разное', 30, 15, '', 0),
             ]
-            for name, desc, cat, price, stock, img in items:
+            for name, desc, cat, price, stock, img, discount in items:
                 cur.execute(
-                    "INSERT INTO products (name, description, category, price, stock, image) VALUES (?, ?, ?, ?, ?, ?)",
-                    (name, desc, cat, price, stock, img)
+                    "INSERT INTO products (name, description, category, price, stock, image, discount) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    (name, desc, cat, price, stock, img, discount)
+                )
+
+        # Рекламные слайды (если пусто)
+        cur.execute("SELECT * FROM ads")
+        if not cur.fetchone():
+            ads = [
+                ('🍯 Добро пожаловать в Медовик!', 'Здесь вы найдёте лучшие товары за Ары', '', ''),
+                ('🎉 Скидки до 50%!', 'Только сегодня на все товары!', '', ''),
+                ('🚀 Новинки каждую неделю', 'Следите за обновлениями!', '', ''),
+                ('💎 Пополни баланс и получи бонус!', '+10% при пополнении от 1000 Ар', '', ''),
+            ]
+            for title, text, link, img in ads:
+                cur.execute(
+                    "INSERT INTO ads (title, text, link, image) VALUES (?, ?, ?, ?)",
+                    (title, text, link, img)
                 )
 
         conn.commit()
         conn.close()
 
+    # ===== ПОЛЬЗОВАТЕЛИ =====
     def create_user(self, username, password):
         conn = self.get_connection()
         cur = conn.cursor()
@@ -226,12 +269,13 @@ class Database:
             for u in users
         ]
 
-    def add_product(self, name, description, category, price, stock, image):
+    # ===== ТОВАРЫ =====
+    def add_product(self, name, description, category, price, stock, image, discount=0):
         conn = self.get_connection()
         cur = conn.cursor()
         cur.execute(
-            "INSERT INTO products (name, description, category, price, stock, image) VALUES (?, ?, ?, ?, ?, ?)",
-            (name, description, category, price, stock, image)
+            "INSERT INTO products (name, description, category, price, stock, image, discount) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (name, description, category, price, stock, image, discount)
         )
         conn.commit()
         conn.close()
@@ -246,7 +290,8 @@ class Database:
             return {
                 'id': p[0], 'name': p[1], 'description': p[2],
                 'category': p[3], 'price': int(p[4] or 0),
-                'stock': int(p[5] or 0), 'image': p[6]
+                'stock': int(p[5] or 0), 'image': p[6],
+                'discount': int(p[7] or 0) if len(p) > 7 else 0
             }
         return None
 
@@ -260,7 +305,8 @@ class Database:
             {
                 'id': p[0], 'name': p[1], 'description': p[2],
                 'category': p[3], 'price': int(p[4] or 0),
-                'stock': int(p[5] or 0), 'image': p[6]
+                'stock': int(p[5] or 0), 'image': p[6],
+                'discount': int(p[7] or 0) if len(p) > 7 else 0
             }
             for p in products
         ]
@@ -278,7 +324,8 @@ class Database:
             {
                 'id': p[0], 'name': p[1], 'description': p[2],
                 'category': p[3], 'price': int(p[4] or 0),
-                'stock': int(p[5] or 0), 'image': p[6]
+                'stock': int(p[5] or 0), 'image': p[6],
+                'discount': int(p[7] or 0) if len(p) > 7 else 0
             }
             for p in products
         ]
@@ -290,6 +337,7 @@ class Database:
         conn.commit()
         conn.close()
 
+    # ===== ЗАКАЗЫ =====
     def create_order(self, user_id, total, address, pickup_point):
         conn = self.get_connection()
         cur = conn.cursor()
@@ -368,3 +416,37 @@ class Database:
             }
             for o in orders
         ]
+
+    # ===== РЕКЛАМНЫЕ СЛАЙДЫ =====
+    def get_all_ads(self):
+        conn = self.get_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM ads WHERE active=1 ORDER BY id ASC")
+        ads = cur.fetchall()
+        conn.close()
+        return [
+            {
+                'id': a[0], 'title': a[1], 'text': a[2],
+                'link': a[3], 'image': a[4],
+                'active': a[5] if len(a) > 5 else 1,
+                'created_at': a[6] if len(a) > 6 else ''
+            }
+            for a in ads
+        ]
+
+    def add_ad(self, title, text, link, image):
+        conn = self.get_connection()
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO ads (title, text, link, image) VALUES (?, ?, ?, ?)",
+            (title, text, link, image)
+        )
+        conn.commit()
+        conn.close()
+
+    def delete_ad(self, ad_id):
+        conn = self.get_connection()
+        cur = conn.cursor()
+        cur.execute("DELETE FROM ads WHERE id=?", (ad_id,))
+        conn.commit()
+        conn.close()
