@@ -45,7 +45,6 @@
             border-radius: 32px;
         }
         
-        /* ===== ТАЙМЕР ===== */
         .timer-overlay {
             position: fixed;
             top: 0;
@@ -151,18 +150,12 @@
             font-weight: 600;
         }
 
-        /* ===== КНОПКА ВХОДА ===== */
         .admin-login-btn {
             margin-top: 20px;
             padding-top: 20px;
             border-top: 1px solid rgba(247,184,43,0.1);
         }
-        .admin-login-btn .btn {
-            padding: 10px 40px;
-            font-size: 1rem;
-        }
 
-        /* ===== АНИМАЦИИ ===== */
         @keyframes floatLogo {
             0%, 100% { transform: translateY(0px) scale(1); }
             50% { transform: translateY(-10px) scale(1.02); }
@@ -178,7 +171,6 @@
             100% { transform: translateY(110vh) rotate(720deg) scale(1.2); opacity: 0; }
         }
 
-        /* ===== ПАДАЮЩИЕ ПРЕДМЕТЫ ===== */
         .falling-items {
             position: fixed;
             top: 0;
@@ -198,7 +190,6 @@
             will-change: transform;
         }
 
-        /* ===== КНОПКИ ===== */
         .btn { 
             padding: 8px 22px; 
             border: none; 
@@ -242,7 +233,6 @@
         }
         .theme-toggle:hover { transform: rotate(20deg); }
 
-        /* ===== СЛАЙДЕР ===== */
         .slider-container { 
             position: relative; 
             overflow: hidden; 
@@ -496,7 +486,7 @@
 </head>
 <body>
 
-<!-- ===== ПАДАЮЩИЕ ПРЕДМЕТЫ (ТОЛЬКО НА ТАЙМЕРЕ) ===== -->
+<!-- ===== ПАДАЮЩИЕ ПРЕДМЕТЫ ===== -->
 <div class="falling-items" id="fallingItems"></div>
 
 <!-- ===== ТАЙМЕР ===== -->
@@ -535,7 +525,7 @@
         
         <!-- ===== КНОПКА ВХОДА ===== -->
         <div class="admin-login-btn">
-            <a href="{{ url_for('login') }}" class="btn btn-gold">
+            <a href="/login" class="btn btn-gold">
                 🔑 Вход для администратора
             </a>
             <p style="color:rgba(160,144,112,0.3); font-size:0.7rem; margin-top:8px;">
@@ -623,7 +613,7 @@
 </div>
 
 <script>
-// ===== ПАДАЮЩИЕ ПРЕДМЕТЫ (ТОЛЬКО НА ТАЙМЕРЕ) =====
+// ===== ПАДАЮЩИЕ ПРЕДМЕТЫ =====
 function createFallingItems() {
     const container = document.getElementById('fallingItems');
     if (!container) return;
@@ -643,14 +633,10 @@ function createFallingItems() {
     }
 }
 
-// ===== ПРОВЕРКА ДОСТУПА =====
-function checkAccess() {
+// ===== ПРОВЕРКА АДМИНА =====
+function checkAdmin() {
     const isAdmin = {{ 'true' if session.role == 'admin' else 'false' }};
-    const urlParams = new URLSearchParams(window.location.search);
-    const secretKey = urlParams.get('secret');
-    const adminSecret = 'medovik2026';
-    
-    return isAdmin || secretKey === adminSecret;
+    return isAdmin;
 }
 
 // ===== ТАЙМЕР =====
@@ -671,7 +657,7 @@ function startTimer() {
         const now = new Date().getTime();
         let diff = targetDate - now;
         
-        if (diff <= 0 || checkAccess()) {
+        if (diff <= 0 || checkAdmin()) {
             overlay.classList.add('hidden');
             setTimeout(() => {
                 overlay.style.display = 'none';
@@ -762,7 +748,7 @@ if (savedTheme) {
 document.addEventListener('DOMContentLoaded', function() {
     createFallingItems();
     
-    if (!checkAccess()) {
+    if (!checkAdmin()) {
         document.getElementById('timerOverlay').style.display = 'flex';
         document.getElementById('mainApp').style.display = 'none';
         document.body.style.overflow = 'hidden';
