@@ -31,6 +31,7 @@
         .slider-slide { min-width: 100%; padding: 30px; text-align: center; background: linear-gradient(135deg, rgba(247,184,43,0.1), rgba(247,184,43,0.05)); border-radius: 20px; }
         .slider-slide h3 { font-size: 1.8rem; margin-bottom: 10px; color: #f7b82b; }
         .slider-slide p { color: var(--text-secondary); font-size: 1.1rem; }
+        .slider-slide img { max-width: 100%; max-height: 200px; border-radius: 16px; margin-bottom: 10px; object-fit: cover; }
         .slider-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer; z-index: 10; transition: all 0.3s ease; }
         .slider-btn:hover { background: #f7b82b; color: #000; }
         .slider-btn.prev { left: 10px; }
@@ -54,7 +55,7 @@
                 <span class="balance">🍯 {{ user.balance if user else 0 }}</span>
                 <a href="{{ url_for('profile') }}">Профиль</a>
                 <a href="{{ url_for('cart') }}">🛒 Корзина</a>
-                {% if session.role == 'admin' %}
+                {% if session.role == 'admin' or session.role == 'seller' %}
                     <a href="{{ url_for('admin_dashboard') }}">⚙️ Админ</a>
                 {% endif %}
                 <a href="{{ url_for('logout') }}" class="btn btn-dark" style="padding:4px 14px;">Выйти</a>
@@ -70,10 +71,13 @@
         <div class="slider-track" id="sliderTrack">
             {% for ad in ads %}
             <div class="slider-slide">
+                {% if ad.image %}
+                    <img src="{{ url_for('uploaded_file', filename=ad.image) }}" alt="{{ ad.title }}">
+                {% endif %}
                 <h3>{{ ad.title }}</h3>
                 <p>{{ ad.text }}</p>
                 {% if ad.link %}
-                    <a href="{{ ad.link }}" class="btn btn-gold" style="margin-top:10px;">Подробнее</a>
+                    <a href="{{ ad.link }}" class="btn btn-gold" style="margin-top:10px;">Подробнее →</a>
                 {% endif %}
             </div>
             {% endfor %}
