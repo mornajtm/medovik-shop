@@ -12,7 +12,7 @@
                 <div style="width:80px; height:80px; border-radius:50%; background:rgba(247,184,43,0.1); display:flex; align-items:center; justify-content:center; font-size:2.5rem;">👤</div>
             {% endif %}
             <div>
-                <p style="color:#fde3a0;">💎 Баланс: <strong style="color:#f7b82b; font-size:2rem;">{{ user.balance }} Ар</strong></p>
+                <p style="color:#fde3a0;">🍯 Баланс: <strong style="color:#f7b82b; font-size:2rem;">{{ user.balance }}</strong></p>
                 <p style="color:rgba(160,144,112,0.5); font-size:0.8rem;">Зарегистрирован: {{ user.created_at[:16] if user.created_at else '—' }}</p>
             </div>
         </div>
@@ -44,7 +44,7 @@
     {% for o in orders %}
     <tr>
         <td>#{{ o.id }}</td>
-        <td>{{ o.total }} Ар</td>
+        <td>{{ o.total }} 🍯</td>
         <td>
             {% if o.status == 'collecting' %}
                 <span style="color:#ffbb33;">🔵 Собираем</span>
