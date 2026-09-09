@@ -1,10 +1,108 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Медовик 🍯</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Переключение темы */
+        [data-theme="light"] {
+            --bg: #f5f0e8;
+            --bg-card: #ffffff;
+            --text: #1a170f;
+            --text-secondary: #4a3f2f;
+            --border: #e0d5c5;
+            --shadow: rgba(0,0,0,0.1);
+        }
+        [data-theme="dark"] {
+            --bg: #0a0a0f;
+            --bg-card: #1a170f;
+            --text: #fde3a0;
+            --text-secondary: #a09070;
+            --border: rgba(247,184,43,0.15);
+            --shadow: rgba(0,0,0,0.8);
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            transition: all 0.3s ease;
+        }
+        .app {
+            background: var(--bg-card);
+            border-color: var(--border);
+            box-shadow: 0 25px 60px var(--shadow);
+        }
+        .theme-toggle {
+            cursor: pointer;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            padding: 8px;
+            font-size: 1.2rem;
+            color: var(--text);
+            transition: all 0.3s ease;
+        }
+        .theme-toggle:hover {
+            transform: rotate(20deg);
+        }
+        /* Слайдер */
+        .slider-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+        }
+        .slider-track {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+        .slider-slide {
+            min-width: 100%;
+            padding: 30px;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(247,184,43,0.1), rgba(247,184,43,0.05));
+            border-radius: 20px;
+        }
+        .slider-slide h3 { font-size: 1.8rem; margin-bottom: 10px; color: #f7b82b; }
+        .slider-slide p { color: var(--text-secondary); font-size: 1.1rem; }
+        .slider-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        .slider-btn:hover { background: #f7b82b; color: #000; }
+        .slider-btn.prev { left: 10px; }
+        .slider-btn.next { right: 10px; }
+        .slider-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 0;
+        }
+        .slider-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--border);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .slider-dot.active { background: #f7b82b; transform: scale(1.2); }
+    </style>
 </head>
 <body>
 <div class="app">
@@ -14,6 +112,7 @@
             <span>АРЫ • АЛМАЗНАЯ РУДА</span>
         </div>
         <div class="user-panel">
+            <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему">🌓</button>
             {% if session.username %}
                 <span class="username">👤 {{ session.username }}</span>
                 <span class="balance">💎 {{ user.balance if user else 0 }} Ар</span>
@@ -30,7 +129,38 @@
         </div>
     </header>
 
-    <!-- ===== ТОЛЬКО НОВЫЕ КАТЕГОРИИ! ===== -->
+    <!-- Рекламный слайдер -->
+    <div class="slider-container" id="slider">
+        <div class="slider-track" id="sliderTrack">
+            {% for ad in ads %}
+            <div class="slider-slide">
+                <h3>{{ ad.title }}</h3>
+                <p>{{ ad.text }}</p>
+                {% if ad.link %}
+                    <a href="{{ ad.link }}" class="btn btn-gold" style="margin-top:10px;">Подробнее</a>
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% if not ads %}
+            <div class="slider-slide">
+                <h3>🍯 Добро пожаловать в Медовик!</h3>
+                <p>Здесь вы найдёте лучшие товары за Ары</p>
+            </div>
+            <div class="slider-slide">
+                <h3>🎉 Скидки до 50%</h3>
+                <p>Только сегодня на все товары!</p>
+            </div>
+            <div class="slider-slide">
+                <h3>🚀 Новинки каждую неделю</h3>
+                <p>Следите за обновлениями!</p>
+            </div>
+            {% endif %}
+        </div>
+        <button class="slider-btn prev" onclick="prevSlide()">‹</button>
+        <button class="slider-btn next" onclick="nextSlide()">›</button>
+        <div class="slider-dots" id="sliderDots"></div>
+    </div>
+
     <div class="nav-links">
         <a href="{{ url_for('index') }}" {% if not category %}class="active"{% endif %}>🏠 Все</a>
         <a href="{{ url_for('category', category='инструменты') }}" {% if category == 'инструменты' %}class="active"{% endif %}>🔧 Инструменты</a>
@@ -47,5 +177,67 @@
 
     {% block content %}{% endblock %}
 </div>
+
+<script>
+// Переключение темы
+function toggleTheme() {
+    const html = document.documentElement;
+    const current = html.getAttribute('data-theme');
+    html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+    localStorage.setItem('theme', html.getAttribute('data-theme'));
+}
+// Загрузка сохранённой темы
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+    document.documentElement.setAttribute('data-theme', savedTheme);
+}
+
+// Слайдер
+let currentSlide = 0;
+const track = document.getElementById('sliderTrack');
+const slides = track ? track.children : [];
+const dotsContainer = document.getElementById('sliderDots');
+
+function updateSlider() {
+    if (!track) return;
+    track.style.transform = `translateX(-${currentSlide * 100}%)`;
+    if (dotsContainer) {
+        const dots = dotsContainer.querySelectorAll('.slider-dot');
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === currentSlide);
+        });
+    }
+}
+
+function nextSlide() {
+    if (slides.length === 0) return;
+    currentSlide = (currentSlide + 1) % slides.length;
+    updateSlider();
+}
+
+function prevSlide() {
+    if (slides.length === 0) return;
+    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+    updateSlider();
+}
+
+function goToSlide(index) {
+    currentSlide = index;
+    updateSlider();
+}
+
+// Создаём точки
+if (dotsContainer && slides.length > 0) {
+    for (let i = 0; i < slides.length; i++) {
+        const dot = document.createElement('button');
+        dot.className = 'slider-dot' + (i === 0 ? ' active' : '');
+        dot.onclick = () => goToSlide(i);
+        dotsContainer.appendChild(dot);
+    }
+}
+
+// Авто-листание
+setInterval(nextSlide, 5000);
+</script>
 </body>
 </html>
