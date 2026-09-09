@@ -30,12 +30,9 @@
         </div>
     </header>
 
-    <!-- ===== НАВИГАЦИЯ С НОВЫМИ КАТЕГОРИЯМИ ===== -->
+    <!-- ===== ТОЛЬКО НОВЫЕ КАТЕГОРИИ! ===== -->
     <div class="nav-links">
         <a href="{{ url_for('index') }}" {% if not category %}class="active"{% endif %}>🏠 Все</a>
-        <a href="{{ url_for('category', category='мёд') }}" {% if category == 'мёд' %}class="active"{% endif %}>🍯 Мёд</a>
-        <a href="{{ url_for('category', category='прополис') }}" {% if category == 'прополис' %}class="active"{% endif %}>🐝 Прополис</a>
-        <a href="{{ url_for('category', category='воск') }}" {% if category == 'воск' %}class="active"{% endif %}>🕯️ Воск</a>
         <a href="{{ url_for('category', category='инструменты') }}" {% if category == 'инструменты' %}class="active"{% endif %}>🔧 Инструменты</a>
         <a href="{{ url_for('category', category='блоки') }}" {% if category == 'блоки' %}class="active"{% endif %}>🧱 Блоки</a>
         <a href="{{ url_for('category', category='еда') }}" {% if category == 'еда' %}class="active"{% endif %}>🍔 Еда</a>
