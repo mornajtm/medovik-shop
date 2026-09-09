@@ -4,6 +4,7 @@
 <h2 style="color:#f7b82b; margin-bottom:20px;">📦 Оформление заказа</h2>
 
 <div style="display:grid; grid-template-columns:1fr 1fr; gap:30px;">
+    <!-- Список товаров -->
     <div style="background:rgba(255,255,255,0.03); border-radius:20px; padding:24px; border:1px solid rgba(247,184,43,0.08);">
         <h4 style="color:#fde3a0; margin-bottom:16px;">🛒 Ваши товары</h4>
         {% for item in cart_items %}
@@ -25,25 +26,24 @@
         </div>
     </div>
 
+    <!-- Форма доставки -->
     <div style="background:rgba(255,255,255,0.03); border-radius:20px; padding:24px; border:1px solid rgba(247,184,43,0.08);">
-        <h4 style="color:#fde3a0; margin-bottom:16px;">📍 Данные доставки</h4>
+        <h4 style="color:#fde3a0; margin-bottom:16px;">📍 Адрес доставки</h4>
         
         <form method="POST" action="{{ url_for('checkout') }}">
             <div style="margin-bottom:16px;">
-                <label style="color:#a09070; display:block; margin-bottom:4px;">🏪 Пункт выдачи (ПВЗ)</label>
-                <select name="pickup_point" required style="width:100%; padding:12px 16px; border-radius:30px; border:1px solid rgba(247,184,43,0.1); background:rgba(0,0,0,0.3); color:#fde3a0;">
-                    <option value="">Выберите ПВЗ</option>
-                    <option value="СДЭК - ТЦ Мега">СДЭК - ТЦ Мега</option>
-                    <option value="Почта России - Центральная">Почта России - Центральная</option>
-                    <option value="Boxberry - Ул. Ленина 15">Boxberry - Ул. Ленина 15</option>
-                    <option value="Яндекс Маркет - ТРЦ Европа">Яндекс Маркет - ТРЦ Европа</option>
-                    <option value="Самовывоз - Медовик офис">Самовывоз - Медовик офис</option>
-                </select>
-            </div>
-
-            <div style="margin-bottom:16px;">
                 <label style="color:#a09070; display:block; margin-bottom:4px;">📍 Адрес доставки</label>
                 <input type="text" name="address" placeholder="Укажите адрес доставки" required style="width:100%; padding:12px 16px; border-radius:30px; border:1px solid rgba(247,184,43,0.1); background:rgba(0,0,0,0.3); color:#fde3a0;">
+            </div>
+
+            <!-- ===== ПВЗ С ЗАГЛУШКОЙ ===== -->
+            <div style="margin-bottom:16px; padding:12px 16px; border-radius:16px; background:rgba(255,200,0,0.08); border:1px dashed rgba(247,184,43,0.3);">
+                <p style="color:#f7b82b; margin:0; font-weight:600;">🚧 ПВЗ В РАЗРАБОТКЕ</p>
+                <p style="color:#a09070; margin:4px 0 0; font-size:0.85rem;">
+                    Пункты выдачи заказов скоро появятся. 
+                    Пока заказы доставляются по адресу.
+                </p>
+                <input type="hidden" name="pickup_point" value="ПВЗ пока не доступны (в разработке)">
             </div>
 
             <div style="margin-top:20px;">
