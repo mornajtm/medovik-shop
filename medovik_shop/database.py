@@ -446,6 +446,28 @@ class Database:
             for a in ads
         ]
 
+    def get_ad(self, ad_id):
+        conn = self.get_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM ads WHERE id=?", (ad_id,))
+        ad = cur.fetchone()
+        conn.close()
+        if ad:
+            return {
+                'id': ad[0], 'title': ad[1], 'text': ad[2],
+                'link': ad[3], 'image': ad[4],
+                'active': ad[5] if len(ad) > 5 else 1,
+                'created_at': ad[6] if len(ad) > 6 else ''
+            }
+        return None
+
+    def toggle_ad(self, ad_id):
+        conn = self.get_connection()
+        cur = conn.cursor()
+        cur.execute("UPDATE ads SET active = CASE WHEN active=1 THEN 0 ELSE 1 END WHERE id=?", (ad_id,))
+        conn.commit()
+        conn.close()
+
     def add_ad(self, title, text, link, image):
         conn = self.get_connection()
         cur = conn.cursor()
