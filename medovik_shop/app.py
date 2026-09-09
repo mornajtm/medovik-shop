@@ -28,7 +28,7 @@ os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'avatars'), exist_ok=True)
 db = Database()
 
 # ===== ТЕЛЕГРАМ БОТ =====
-TELEGRAM_TOKEN = "8827095918:AAEcl15umAZe3LGNKJ1mhqm_eZmPY55Gzrs"
+TELEGRAM_TOKEN = "8827095918:AAG9mg1eNRGKSsx2aXrfTNaw90D6x98wcrI"
 bot_app = None
 bot_running = False
 pending_links = {}  # Временное хранилище для ссылок привязки
