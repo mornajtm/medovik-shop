@@ -10,7 +10,6 @@
         <th>Сумма</th>
         <th>Статус</th>
         <th>Адрес</th>
-        <th>ПВЗ</th>
         <th>Дата</th>
         <th>Действия</th>
     </tr>
@@ -31,7 +30,6 @@
             {% endif %}
         </td>
         <td style="font-size:0.8rem;">{{ o.address[:30] }}{% if o.address|length > 30 %}...{% endif %}</td>
-        <td style="font-size:0.8rem;">{{ o.pickup_point[:20] }}{% if o.pickup_point|length > 20 %}...{% endif %}</td>
         <td>{{ o.created_at[:16] if o.created_at else '—' }}</td>
         <td>
             {% if o.status != 'delivered' %}
@@ -47,7 +45,7 @@
     </tr>
     {% else %}
     <tr>
-        <td colspan="8" style="text-align:center; color:rgba(160,144,112,0.4); padding:30px 0;">
+        <td colspan="7" style="text-align:center; color:rgba(160,144,112,0.4); padding:30px 0;">
             📭 Заказов нет
         </td>
     </tr>
