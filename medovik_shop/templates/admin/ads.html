@@ -3,7 +3,6 @@
 {% block content %}
 <h2 style="color:#f7b82b;">📢 Управление рекламой</h2>
 
-<!-- Форма добавления -->
 <div style="background:rgba(255,255,255,0.03); border-radius:20px; padding:20px; margin:16px 0; border:1px solid rgba(247,184,43,0.08);">
     <h4 style="color:#fde3a0;">➕ Добавить рекламный слайд</h4>
     <form method="POST" action="{{ url_for('add_ad') }}" enctype="multipart/form-data" style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
@@ -15,7 +14,6 @@
     </form>
 </div>
 
-<!-- Список рекламы -->
 <table class="admin-table">
     <tr>
         <th>#</th>
