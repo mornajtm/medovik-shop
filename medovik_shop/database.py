@@ -15,9 +15,18 @@ class Database:
         conn = self.get_connection()
         cur = conn.cursor()
 
+        # УДАЛЯЕМ СТАРУЮ ТАБЛИЦУ ЧТОБЫ ОНА НЕ МЕШАЛА
+        cur.execute("DROP TABLE IF EXISTS products")
+        cur.execute("DROP TABLE IF EXISTS users")
+        cur.execute("DROP TABLE IF EXISTS orders")
+        cur.execute("DROP TABLE IF EXISTS order_items")
+        cur.execute("DROP TABLE IF EXISTS ads")
+
+        # ===== СОЗДАЁМ ВСЁ ЗАНОВО =====
+
         # Таблица пользователей
         cur.execute('''
-            CREATE TABLE IF NOT EXISTS users (
+            CREATE TABLE users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT UNIQUE NOT NULL,
                 password TEXT NOT NULL,
@@ -31,9 +40,9 @@ class Database:
             )
         ''')
 
-        # Таблица товаров
+        # Таблица товаров (ТОЛЬКО НОВЫЕ КАТЕГОРИИ!)
         cur.execute('''
-            CREATE TABLE IF NOT EXISTS products (
+            CREATE TABLE products (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 description TEXT,
@@ -47,7 +56,7 @@ class Database:
 
         # Таблица заказов
         cur.execute('''
-            CREATE TABLE IF NOT EXISTS orders (
+            CREATE TABLE orders (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER NOT NULL,
                 total INTEGER NOT NULL,
@@ -61,7 +70,7 @@ class Database:
 
         # Таблица товаров в заказе
         cur.execute('''
-            CREATE TABLE IF NOT EXISTS order_items (
+            CREATE TABLE order_items (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 order_id INTEGER NOT NULL,
                 product_id INTEGER NOT NULL,
@@ -72,9 +81,9 @@ class Database:
             )
         ''')
 
-        # Таблица для рекламных слайдов
+        # Таблица рекламы
         cur.execute('''
-            CREATE TABLE IF NOT EXISTS ads (
+            CREATE TABLE ads (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT NOT NULL,
                 text TEXT,
@@ -85,68 +94,60 @@ class Database:
             )
         ''')
 
-        # Админ
+        # ===== АДМИН =====
         import hashlib
         admin_pass = hashlib.sha256('admin123'.encode()).hexdigest()
-        cur.execute("SELECT * FROM users WHERE username='admin'")
-        if not cur.fetchone():
+        cur.execute("INSERT INTO users (username, password, role, balance) VALUES (?, ?, ?, ?)",
+                    ('admin', admin_pass, 'admin', 9999))
+
+        # ===== ТОЛЬКО НОВЫЕ ТОВАРЫ! СТАРЫХ НЕТ! =====
+        items = [
+            # 🔧 ИНСТРУМЕНТЫ (5 товаров)
+            ('⛏️ Алмазная кирка', 'Прочная алмазная кирка', 'инструменты', 50, 20, '', 10),
+            ('🪓 Алмазный топор', 'Острый алмазный топор', 'инструменты', 45, 15, '', 5),
+            ('🧹 Алмазная лопата', 'Удобная алмазная лопата', 'инструменты', 30, 25, '', 0),
+            ('⛏️ Железная кирка', 'Надёжная железная кирка', 'инструменты', 20, 40, '', 0),
+            ('🪚 Алмазная пила', 'Острая алмазная пила', 'инструменты', 55, 10, '', 15),
+
+            # 🧱 БЛОКИ (5 товаров)
+            ('🧱 Каменный блок', 'Прочный каменный блок', 'блоки', 5, 100, '', 0),
+            ('🪵 Древесный блок', 'Натуральный древесный блок', 'блоки', 3, 150, '', 0),
+            ('🪟 Стеклянный блок', 'Прозрачный стеклянный блок', 'блоки', 4, 80, '', 0),
+            ('🧱 Кирпичный блок', 'Красивый кирпичный блок', 'блоки', 8, 60, '', 0),
+            ('🔮 Обсидиановый блок', 'Чёрный обсидиановый блок', 'блоки', 12, 30, '', 0),
+
+            # 🍔 ЕДА (5 товаров)
+            ('🍞 Хлеб', 'Свежий пшеничный хлеб', 'еда', 2, 200, '', 0),
+            ('🍰 Торт', 'Вкусный торт с кремом', 'еда', 15, 30, '', 15),
+            ('🍪 Печенье', 'Хрустящее печенье', 'еда', 3, 150, '', 0),
+            ('🍲 Суп', 'Горячий грибной суп', 'еда', 6, 50, '', 0),
+            ('🍣 Суши', 'Свежие суши с лососем', 'еда', 12, 25, '', 10),
+
+            # 📦 РАЗНОЕ (5 товаров)
+            ('🏹 Стрелы', 'Острые стрелы для лука', 'разное', 10, 100, '', 0),
+            ('🔥 Факел', 'Яркий факел для освещения', 'разное', 2, 200, '', 0),
+            ('📖 Книга', 'Книга с древними знаниями', 'разное', 25, 20, '', 20),
+            ('🧪 Зелье', 'Волшебное зелье', 'разное', 30, 15, '', 0),
+            ('🪄 Волшебная палочка', 'Магический артефакт', 'разное', 40, 10, '', 0),
+        ]
+        for name, desc, cat, price, stock, img, discount in items:
             cur.execute(
-                "INSERT INTO users (username, password, role, balance) VALUES (?, ?, ?, ?)",
-                ('admin', admin_pass, 'admin', 9999)
+                "INSERT INTO products (name, description, category, price, stock, image, discount) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (name, desc, cat, price, stock, img, discount)
             )
 
-        # ===== ТОЛЬКО НОВЫЕ ТОВАРЫ! СТАРЫЕ УДАЛЕНЫ! =====
-        cur.execute("SELECT * FROM products")
-        if not cur.fetchone():
-            items = [
-                # 🔧 Инструменты
-                ('⛏️ Алмазная кирка', 'Прочная алмазная кирка', 'инструменты', 50, 20, '', 10),
-                ('🪓 Алмазный топор', 'Острый алмазный топор', 'инструменты', 45, 15, '', 5),
-                ('🧹 Алмазная лопата', 'Удобная алмазная лопата', 'инструменты', 30, 25, '', 0),
-                ('⛏️ Железная кирка', 'Надёжная железная кирка', 'инструменты', 20, 40, '', 0),
-                ('🪚 Алмазная пила', 'Острая алмазная пила', 'инструменты', 55, 10, '', 15),
-
-                # 🧱 Блоки
-                ('🧱 Каменный блок', 'Прочный каменный блок', 'блоки', 5, 100, '', 0),
-                ('🪵 Древесный блок', 'Натуральный древесный блок', 'блоки', 3, 150, '', 0),
-                ('🪟 Стеклянный блок', 'Прозрачный стеклянный блок', 'блоки', 4, 80, '', 0),
-                ('🧱 Кирпичный блок', 'Красивый кирпичный блок', 'блоки', 8, 60, '', 0),
-                ('🔮 Обсидиановый блок', 'Чёрный обсидиановый блок', 'блоки', 12, 30, '', 0),
-
-                # 🍔 Еда
-                ('🍞 Хлеб', 'Свежий пшеничный хлеб', 'еда', 2, 200, '', 0),
-                ('🍰 Торт', 'Вкусный торт с кремом', 'еда', 15, 30, '', 15),
-                ('🍪 Печенье', 'Хрустящее печенье', 'еда', 3, 150, '', 0),
-                ('🍲 Суп', 'Горячий грибной суп', 'еда', 6, 50, '', 0),
-                ('🍣 Суши', 'Свежие суши с лососем', 'еда', 12, 25, '', 10),
-
-                # 📦 Разное
-                ('🏹 Стрелы', 'Острые стрелы для лука', 'разное', 10, 100, '', 0),
-                ('🔥 Факел', 'Яркий факел для освещения', 'разное', 2, 200, '', 0),
-                ('📖 Книга', 'Книга с древними знаниями', 'разное', 25, 20, '', 20),
-                ('🧪 Зелье', 'Волшебное зелье', 'разное', 30, 15, '', 0),
-                ('🪄 Волшебная палочка', 'Магический артефакт', 'разное', 40, 10, '', 0),
-            ]
-            for name, desc, cat, price, stock, img, discount in items:
-                cur.execute(
-                    "INSERT INTO products (name, description, category, price, stock, image, discount) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                    (name, desc, cat, price, stock, img, discount)
-                )
-
-        # Рекламные слайды
-        cur.execute("SELECT * FROM ads")
-        if not cur.fetchone():
-            ads = [
-                ('🍯 Добро пожаловать в Медовик!', 'Здесь вы найдёте лучшие товары за Ары', '', ''),
-                ('🎉 Скидки до 50%!', 'Только сегодня на все товары!', '', ''),
-                ('🚀 Новинки каждую неделю', 'Следите за обновлениями!', '', ''),
-                ('💎 Пополни баланс и получи бонус!', '+10% при пополнении от 1000 Ар', '', ''),
-            ]
-            for title, text, link, img in ads:
-                cur.execute(
-                    "INSERT INTO ads (title, text, link, image) VALUES (?, ?, ?, ?)",
-                    (title, text, link, img)
-                )
+        # ===== РЕКЛАМА =====
+        ads = [
+            ('🍯 Добро пожаловать в Медовик!', 'Здесь вы найдёте лучшие товары за Ары', '', ''),
+            ('🎉 Скидки до 50%!', 'Только сегодня на все товары!', '', ''),
+            ('🚀 Новинки каждую неделю', 'Следите за обновлениями!', '', ''),
+            ('💎 Пополни баланс и получи бонус!', '+10% при пополнении от 1000 Ар', '', ''),
+        ]
+        for title, text, link, img in ads:
+            cur.execute(
+                "INSERT INTO ads (title, text, link, image) VALUES (?, ?, ?, ?)",
+                (title, text, link, img)
+            )
 
         conn.commit()
         conn.close()
@@ -421,7 +422,7 @@ class Database:
             for o in orders
         ]
 
-    # ===== РЕКЛАМНЫЕ СЛАЙДЫ =====
+    # ===== РЕКЛАМА =====
     def get_all_ads(self):
         conn = self.get_connection()
         cur = conn.cursor()
