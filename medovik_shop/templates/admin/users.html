@@ -18,7 +18,7 @@
     <tr>
         <td>{{ u.id }}</td>
         <td>{{ u.username }}</td>
-        <td>{{ u.balance }} Ар</td>
+        <td>{{ u.balance }} 🍯</td>
         <td>
             {% if u.role == 'admin' %}
                 <span class="badge-admin">Админ</span>
@@ -36,23 +36,20 @@
         <td>{{ u.telegram or '—' }}</td>
         <td>{{ u.discord or '—' }}</td>
         <td>
-            <!-- Бан/Разбан -->
             {% if u.banned %}
                 <a href="{{ url_for('admin_unban_user', user_id=u.id) }}" class="btn btn-success btn-sm">Разбан</a>
             {% else %}
                 <a href="{{ url_for('admin_ban_user', user_id=u.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Забанить пользователя?')">Бан</a>
             {% endif %}
             
-            <!-- Смена пароля -->
             <form method="POST" action="{{ url_for('admin_change_password', user_id=u.id) }}" style="display:inline;">
-                <input type="text" name="new_password" placeholder="Новый пароль">
+                <input type="text" name="new_password" placeholder="Новый пароль" style="width:80px; padding:4px 8px; border-radius:20px; background:rgba(0,0,0,0.3); border:1px solid rgba(247,184,43,0.1); color:#fde3a0; font-size:0.8rem;">
                 <button type="submit" class="btn btn-dark btn-sm">Сменить</button>
             </form>
             
-            <!-- Добавить Ар -->
             <form method="POST" action="{{ url_for('admin_add_balance', user_id=u.id) }}" style="display:inline;">
-                <input type="number" name="amount" placeholder="Сумма" min="1">
-                <button type="submit" class="btn btn-gold btn-sm">+</button>
+                <input type="number" name="amount" placeholder="Сумма" min="1" style="width:60px; padding:4px 8px; border-radius:20px; background:rgba(0,0,0,0.3); border:1px solid rgba(247,184,43,0.1); color:#fde3a0; font-size:0.8rem;">
+                <button type="submit" class="btn btn-gold btn-sm">+🍯</button>
             </form>
         </td>
     </tr>
