@@ -8,7 +8,14 @@
 <div class="products-grid">
     {% for p in products %}
     <a href="{{ url_for('product_page', product_id=p.id) }}" style="text-decoration:none; display:block;">
-        <div class="product-card" style="cursor:pointer;">
+        <div class="product-card" style="cursor:pointer; position:relative;">
+            <!-- Скидка -->
+            {% if p.discount and p.discount > 0 %}
+            <div style="position:absolute; top:10px; right:10px; background:#ff4444; color:white; padding:4px 12px; border-radius:20px; font-weight:700; font-size:0.8rem; z-index:5;">
+                -{{ p.discount }}%
+            </div>
+            {% endif %}
+
             {% if p.image %}
                 <img src="{{ url_for('uploaded_file', filename=p.image) }}" alt="{{ p.name }}">
             {% else %}
@@ -17,7 +24,14 @@
             <div class="category">{{ p.category }}</div>
             <h3>{{ p.name }}</h3>
             <div class="desc">{{ p.description[:60] }}{% if p.description|length > 60 %}...{% endif %}</div>
-            <div class="price">{{ p.price }} <span>Ар</span></div>
+            <div class="price">
+                {% if p.discount and p.discount > 0 %}
+                    <span style="text-decoration:line-through; color:#888; font-size:0.8rem;">{{ p.price }} Ар</span>
+                    <span style="color:#ff4444;">{{ (p.price * (100 - p.discount) / 100)|int }} Ар</span>
+                {% else %}
+                    {{ p.price }} <span>Ар</span>
+                {% endif %}
+            </div>
             <div class="stock">в наличии: {{ p.stock }}</div>
             {% if p.stock and p.stock > 0 %}
                 <span class="btn btn-gold" style="font-size:0.9rem; display:inline-block; pointer-events:none;">В корзину</span>
