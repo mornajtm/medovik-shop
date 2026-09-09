@@ -12,12 +12,12 @@
             {% endif %}
             {{ item.product.name }} × {{ item.quantity }}
         </span>
-        <span>{{ item.product.price * item.quantity }} Ар</span>
+        <span>{{ item.product.price * item.quantity }} 🍯</span>
         <a href="{{ url_for('remove_from_cart', product_id=item.product.id) }}" class="btn btn-dark" style="padding:2px 12px;">✕</a>
     </div>
     {% endfor %}
     
-    <div class="cart-total">Итого: {{ total }} Ар</div>
+    <div class="cart-total">Итого: {{ total }} 🍯</div>
     
     <div style="display:flex; gap:12px; margin-top:16px; flex-wrap:wrap;">
         <a href="{{ url_for('checkout') }}" class="btn btn-gold" style="padding:14px 40px; font-size:1.1rem;">
