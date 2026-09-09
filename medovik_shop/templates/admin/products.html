@@ -9,13 +9,14 @@
         <input type="text" name="name" placeholder="Название" required style="flex:1; min-width:120px; padding:8px 14px; border-radius:30px; background:rgba(0,0,0,0.3); border:1px solid rgba(247,184,43,0.1); color:#fde3a0;">
         <input type="text" name="description" placeholder="Описание" style="flex:1; min-width:120px; padding:8px 14px; border-radius:30px; background:rgba(0,0,0,0.3); border:1px solid rgba(247,184,43,0.1); color:#fde3a0;">
         <select name="category" style="padding:8px 14px; border-radius:30px; background:rgba(0,0,0,0.3); border:1px solid rgba(247,184,43,0.1); color:#fde3a0;">
-            <option value="мёд">Мёд</option>
-            <option value="прополис">Прополис</option>
-            <option value="воск">Воск</option>
-            <option value="другое">Другое</option>
+            <option value="инструменты">🔧 Инструменты</option>
+            <option value="блоки">🧱 Блоки</option>
+            <option value="еда">🍔 Еда</option>
+            <option value="разное">📦 Разное</option>
         </select>
-        <input type="number" name="price" placeholder="Цена (Ар)" required min="1" style="width:120px; padding:8px 14px; border-radius:30px; background:rgba(0,0,0,0.3); border:1px solid rgba(247,184,43,0.1); color:#fde3a0;">
+        <input type="number" name="price" placeholder="Цена (🍯)" required min="1" style="width:120px; padding:8px 14px; border-radius:30px; background:rgba(0,0,0,0.3); border:1px solid rgba(247,184,43,0.1); color:#fde3a0;">
         <input type="number" name="stock" placeholder="Кол-во" min="0" style="width:100px; padding:8px 14px; border-radius:30px; background:rgba(0,0,0,0.3); border:1px solid rgba(247,184,43,0.1); color:#fde3a0;">
+        <input type="number" name="discount" placeholder="Скидка %" min="0" max="100" style="width:100px; padding:8px 14px; border-radius:30px; background:rgba(0,0,0,0.3); border:1px solid rgba(247,184,43,0.1); color:#fde3a0;">
         <input type="file" name="image" accept="image/*" style="color:#a09070; padding:4px;">
         <button type="submit" class="btn btn-gold">Добавить</button>
     </form>
@@ -28,6 +29,7 @@
         <th>Название</th>
         <th>Категория</th>
         <th>Цена</th>
+        <th>Скидка</th>
         <th>В наличии</th>
         <th>Действие</th>
     </tr>
@@ -43,7 +45,8 @@
         </td>
         <td>{{ p.name }}</td>
         <td>{{ p.category }}</td>
-        <td>{{ p.price }} Ар</td>
+        <td>{{ p.price }} 🍯</td>
+        <td>{% if p.discount > 0 %}-{{ p.discount }}%{% else %}—{% endif %}</td>
         <td>{{ p.stock }}</td>
         <td>
             <a href="{{ url_for('delete_product', product_id=p.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Удалить товар?')">🗑️</a>
