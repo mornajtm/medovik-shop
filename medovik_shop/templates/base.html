@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Медовик 🍯</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/png">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         [data-theme="light"] {
@@ -22,10 +23,171 @@
             --border: rgba(247,184,43,0.15);
             --shadow: rgba(0,0,0,0.8);
         }
-        body { background: var(--bg); color: var(--text); transition: all 0.3s ease; }
-        .app { background: var(--bg-card); border-color: var(--border); box-shadow: 0 25px 60px var(--shadow); }
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            transition: all 0.3s ease; 
+            overflow-x: hidden;
+        }
+        .app { 
+            background: var(--bg-card); 
+            border-color: var(--border); 
+            box-shadow: 0 25px 60px var(--shadow); 
+            position: relative;
+            z-index: 1;
+            display: none; /* Скрыт по умолчанию */
+        }
+        
+        /* ===== ТАЙМЕР ===== */
+        .timer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 1s ease, visibility 1s ease;
+        }
+        .timer-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .timer-container {
+            text-align: center;
+            padding: 40px;
+            border-radius: 30px;
+            background: var(--bg-card);
+            border: 2px solid rgba(247,184,43,0.2);
+            box-shadow: 0 0 60px rgba(247,184,43,0.1);
+            max-width: 600px;
+            width: 90%;
+        }
+        .timer-logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+            border: 3px solid #f7b82b;
+            box-shadow: 0 0 40px rgba(247,184,43,0.2);
+            animation: floatLogo 3s ease-in-out infinite;
+        }
+        .timer-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #f7b82b;
+            margin-bottom: 10px;
+        }
+        .timer-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 30px;
+        }
+        .timer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin: 20px 0;
+        }
+        .timer-block {
+            background: rgba(247,184,43,0.05);
+            border-radius: 16px;
+            padding: 16px 8px;
+            border: 1px solid rgba(247,184,43,0.1);
+        }
+        .timer-number {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #f7b82b;
+            font-variant-numeric: tabular-nums;
+            display: block;
+            line-height: 1;
+            animation: countPulse 1s ease infinite;
+        }
+        .timer-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            display: block;
+        }
+        .timer-progress {
+            width: 100%;
+            height: 4px;
+            background: rgba(247,184,43,0.1);
+            border-radius: 4px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        .timer-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #f7b82b, #f5a623);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+        .timer-message {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 16px;
+        }
+        .timer-message span {
+            color: #f7b82b;
+            font-weight: 600;
+        }
+
+        /* ===== АНИМАЦИИ ===== */
+        @keyframes floatLogo {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-10px) scale(1.02); }
+        }
+        @keyframes countPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+        @keyframes fall {
+            0% { transform: translateY(-50px) rotate(0deg) scale(0.5); opacity: 0; }
+            10% { opacity: 0.7; }
+            90% { opacity: 0.7; }
+            100% { transform: translateY(110vh) rotate(720deg) scale(1.2); opacity: 0; }
+        }
+
+        /* ===== ПАДАЮЩИЕ ПРЕДМЕТЫ ===== */
+        .falling-items {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .falling-item {
+            position: absolute;
+            font-size: 2rem;
+            animation: fall linear infinite;
+            opacity: 0.5;
+            filter: drop-shadow(0 0 10px rgba(247,184,43,0.2));
+        }
+
+        /* ===== КНОПКИ ===== */
+        .btn { padding: 8px 22px; border: none; border-radius: 40px; font-weight: 600; cursor: pointer; transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1); text-decoration: none; display: inline-block; font-size: 0.9rem; }
+        .btn-gold { background: linear-gradient(135deg, #f7b82b, #e09d1a); color: #0a0a0f; box-shadow: 0 4px 20px rgba(247,184,43,0.25); }
+        .btn-gold:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 35px rgba(247,184,43,0.4); }
+        .btn-dark { background: rgba(255,255,255,0.06); color: #fde3a0; border: 1px solid rgba(247,184,43,0.15); }
+        .btn-dark:hover { background: rgba(247,184,43,0.12); border-color: rgba(247,184,43,0.3); transform: translateY(-2px); }
+
         .theme-toggle { cursor: pointer; background: none; border: 1px solid var(--border); border-radius: 50%; padding: 8px; font-size: 1.2rem; color: var(--text); transition: all 0.3s ease; }
         .theme-toggle:hover { transform: rotate(20deg); }
+
         .slider-container { position: relative; overflow: hidden; border-radius: 20px; margin-bottom: 20px; background: var(--bg-card); border: 1px solid var(--border); }
         .slider-track { display: flex; transition: transform 0.5s ease; }
         .slider-slide { min-width: 100%; padding: 30px; text-align: center; background: linear-gradient(135deg, rgba(247,184,43,0.1), rgba(247,184,43,0.05)); border-radius: 20px; }
@@ -39,10 +201,72 @@
         .slider-dots { display: flex; justify-content: center; gap: 8px; padding: 10px 0; }
         .slider-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); border: none; cursor: pointer; transition: all 0.3s ease; }
         .slider-dot.active { background: #f7b82b; transform: scale(1.2); }
+
+        @media (max-width: 600px) {
+            .timer-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+            .timer-number { font-size: 2rem; }
+            .timer-container { padding: 20px; }
+            .timer-logo { width: 80px; height: 80px; }
+            .app { padding: 16px; border-radius: 20px; }
+            .slider-slide { padding: 16px; }
+            .slider-slide h3 { font-size: 1.2rem; }
+            .falling-item { font-size: 1.2rem; }
+        }
     </style>
 </head>
 <body>
-<div class="app">
+
+<!-- ===== ПАДАЮЩИЕ ПРЕДМЕТЫ ===== -->
+<div class="falling-items" id="fallingItems"></div>
+
+<!-- ===== ТАЙМЕР ===== -->
+<div class="timer-overlay" id="timerOverlay">
+    <div class="timer-container">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Медовик" class="timer-logo" id="timerLogo">
+        <div class="timer-title">🍯 Медовик</div>
+        <div class="timer-subtitle">Сайт откроется через:</div>
+        
+        <div class="timer-grid">
+            <div class="timer-block">
+                <span class="timer-number" id="days">00</span>
+                <span class="timer-label">Дней</span>
+            </div>
+            <div class="timer-block">
+                <span class="timer-number" id="hours">00</span>
+                <span class="timer-label">Часов</span>
+            </div>
+            <div class="timer-block">
+                <span class="timer-number" id="minutes">00</span>
+                <span class="timer-label">Минут</span>
+            </div>
+            <div class="timer-block">
+                <span class="timer-number" id="seconds">00</span>
+                <span class="timer-label">Секунд</span>
+            </div>
+        </div>
+        
+        <div class="timer-progress">
+            <div class="timer-progress-bar" id="progressBar"></div>
+        </div>
+        
+        <div class="timer-message">
+            🐝 <span>Скоро откроем!</span> Следите за обновлениями
+        </div>
+        
+        <!-- ===== ВХОД ДЛЯ АДМИНА ===== -->
+        <div style="margin-top:20px; padding-top:20px; border-top:1px solid rgba(247,184,43,0.1);">
+            <a href="{{ url_for('login') }}" class="btn btn-gold" style="padding:8px 30px; font-size:0.9rem;">
+                🔑 Вход для администратора
+            </a>
+            <p style="color:rgba(160,144,112,0.3); font-size:0.7rem; margin-top:8px;">
+                Только для владельца сайта
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- ===== ОСНОВНОЙ САЙТ ===== -->
+<div class="app" id="mainApp">
     <header class="header">
         <div class="logo">
             <h1>🍯 Медовик</h1>
@@ -119,17 +343,97 @@
 </div>
 
 <script>
-function toggleTheme() {
-    const html = document.documentElement;
-    const current = html.getAttribute('data-theme');
-    html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
-    localStorage.setItem('theme', html.getAttribute('data-theme'));
-}
-const savedTheme = localStorage.getItem('theme');
-if (savedTheme) {
-    document.documentElement.setAttribute('data-theme', savedTheme);
+// ===== ПАДАЮЩИЕ ПРЕДМЕТЫ =====
+function createFallingItems() {
+    const container = document.getElementById('fallingItems');
+    const items = ['🍯', '🐝', '🌻', '🍄', '🍃', '✨', '⭐', '🍂', '🌸', '🌿', '🍀', '🌺'];
+    const count = 30;
+    for (let i = 0; i < count; i++) {
+        const el = document.createElement('div');
+        el.className = 'falling-item';
+        el.textContent = items[Math.floor(Math.random() * items.length)];
+        el.style.left = Math.random() * 100 + '%';
+        el.style.fontSize = (1 + Math.random() * 2) + 'rem';
+        el.style.animationDuration = (8 + Math.random() * 12) + 's';
+        el.style.animationDelay = (Math.random() * 15) + 's';
+        el.style.opacity = 0.2 + Math.random() * 0.4;
+        container.appendChild(el);
+    }
 }
 
+// ===== ПРОВЕРКА ДОСТУПА =====
+function checkAccess() {
+    const overlay = document.getElementById('timerOverlay');
+    const mainApp = document.getElementById('mainApp');
+    
+    // Проверяем, есть ли сессия админа (передаётся из Flask)
+    const isAdmin = {{ 'true' if session.role == 'admin' else 'false' }};
+    
+    // Проверяем, есть ли в URL секретный ключ
+    const urlParams = new URLSearchParams(window.location.search);
+    const secretKey = urlParams.get('secret');
+    const adminSecret = 'medovik2026';
+    
+    // Если админ или секретный ключ правильный
+    if (isAdmin || secretKey === adminSecret) {
+        overlay.style.display = 'none';
+        mainApp.style.display = 'block';
+        document.body.style.overflow = 'auto';
+        return true;
+    }
+    
+    return false;
+}
+
+// ===== ТАЙМЕР =====
+function startTimer() {
+    const targetDate = new Date('2026-09-12T17:00:00').getTime();
+    const overlay = document.getElementById('timerOverlay');
+    const mainApp = document.getElementById('mainApp');
+    const daysEl = document.getElementById('days');
+    const hoursEl = document.getElementById('hours');
+    const minutesEl = document.getElementById('minutes');
+    const secondsEl = document.getElementById('seconds');
+    const progressBar = document.getElementById('progressBar');
+    
+    const startDate = new Date('2026-09-01T00:00:00').getTime();
+    const totalDuration = targetDate - startDate;
+    
+    function updateTimer() {
+        const now = new Date().getTime();
+        let diff = targetDate - now;
+        
+        // Если таймер закончился или админ уже зашёл
+        if (diff <= 0 || checkAccess()) {
+            overlay.classList.add('hidden');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                mainApp.style.display = 'block';
+                document.body.style.overflow = 'auto';
+            }, 1000);
+            return;
+        }
+        
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        daysEl.textContent = String(days).padStart(2, '0');
+        hoursEl.textContent = String(hours).padStart(2, '0');
+        minutesEl.textContent = String(minutes).padStart(2, '0');
+        secondsEl.textContent = String(seconds).padStart(2, '0');
+        
+        const elapsed = now - startDate;
+        const progress = Math.min((elapsed / totalDuration) * 100, 100);
+        progressBar.style.width = progress + '%';
+    }
+    
+    updateTimer();
+    setInterval(updateTimer, 1000);
+}
+
+// ===== СЛАЙДЕР =====
 let currentSlide = 0;
 const track = document.getElementById('sliderTrack');
 const slides = track ? track.children : [];
@@ -173,6 +477,37 @@ if (dotsContainer && slides.length > 0) {
 }
 
 setInterval(nextSlide, 5000);
+
+// ===== ТЕМА =====
+function toggleTheme() {
+    const html = document.documentElement;
+    const current = html.getAttribute('data-theme');
+    html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+    localStorage.setItem('theme', html.getAttribute('data-theme'));
+}
+
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+    document.documentElement.setAttribute('data-theme', savedTheme);
+}
+
+// ===== ЗАПУСК =====
+document.addEventListener('DOMContentLoaded', function() {
+    // Сначала проверяем доступ
+    if (!checkAccess()) {
+        // Если доступа нет — показываем таймер
+        document.getElementById('timerOverlay').style.display = 'flex';
+        document.getElementById('mainApp').style.display = 'none';
+        document.body.style.overflow = 'hidden';
+        createFallingItems();
+        startTimer();
+    } else {
+        document.getElementById('timerOverlay').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+        document.body.style.overflow = 'auto';
+        createFallingItems();
+    }
+});
 </script>
 </body>
 </html>
