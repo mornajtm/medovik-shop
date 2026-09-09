@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 style="color:#f7b82b;">📋 Все заказы</h2>
+
+<table class="admin-table">
+    <tr>
+        <th>#</th>
+        <th>Пользователь</th>
+        <th>Сумма</th>
+        <th>Статус</th>
+        <th>Адрес</th>
+        <th>ПВЗ</th>
+        <th>Дата</th>
+        <th>Действия</th>
+    </tr>
+    {% for o in orders %}
+    <tr>
+        <td>#{{ o.id }}</td>
+        <td>{{ o.username }}</td>
+        <td>{{ o.total }} Ар</td>
+        <td>
+            {% if o.status == 'collecting' %}
+                <span style="color:#ffbb33;">🔵 Собираем</span>
+            {% elif o.status == 'delivering' %}
+                <span style="color:#ffbb33;">🟡 Доставляем</span>
+            {% elif o.status == 'delivered' %}
+                <span style="color:#55ff88;">✅ Доставлен</span>
+            {% else %}
+                <span style="color:#888;">{{ o.status }}</span>
+            {% endif %}
+        </td>
+        <td style="font-size:0.8rem;">{{ o.address[:30] }}{% if o.address|length > 30 %}...{% endif %}</td>
+        <td style="font-size:0.8rem;">{{ o.pickup_point[:20] }}{% if o.pickup_point|length > 20 %}...{% endif %}</td>
+        <td>{{ o.created_at[:16] if o.created_at else '—' }}</td>
+        <td>
+            {% if o.status != 'delivered' %}
+                <div style="display:flex; flex-wrap:wrap; gap:4px;">
+                    <a href="{{ url_for('admin_update_order_status', order_id=o.id, status='collecting') }}" class="btn btn-dark btn-sm">🔵 Собираем</a>
+                    <a href="{{ url_for('admin_update_order_status', order_id=o.id, status='delivering') }}" class="btn btn-dark btn-sm">🟡 Доставляем</a>
+                    <a href="{{ url_for('admin_update_order_status', order_id=o.id, status='delivered') }}" class="btn btn-gold btn-sm">✅ Доставлен</a>
+                </div>
+            {% else %}
+                <span style="color:#55ff88;">✔️ Завершён</span>
+            {% endif %}
+        </td>
+    </tr>
+    {% else %}
+    <tr>
+        <td colspan="8" style="text-align:center; color:rgba(160,144,112,0.4); padding:30px 0;">
+            📭 Заказов нет
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

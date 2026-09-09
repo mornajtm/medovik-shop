@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 style="color:#f7b82b;">🛒 Корзина</h2>
+
+{% if products %}
+    {% for item in products %}
+    <div class="cart-item">
+        <span>
+            {% if item.product.image %}
+                <img src="{{ url_for('uploaded_file', filename=item.product.image) }}" style="width:40px;height:40px;object-fit:cover;border-radius:8px;vertical-align:middle;margin-right:10px;">
+            {% endif %}
+            {{ item.product.name }} × {{ item.quantity }}
+        </span>
+        <span>{{ item.product.price * item.quantity }} Ар</span>
+        <a href="{{ url_for('remove_from_cart', product_id=item.product.id) }}" class="btn btn-dark" style="padding:2px 12px;">✕</a>
+    </div>
+    {% endfor %}
+    
+    <div class="cart-total">Итого: {{ total }} Ар</div>
+    
+    <div style="display:flex; gap:12px; margin-top:16px; flex-wrap:wrap;">
+        <a href="{{ url_for('checkout') }}" class="btn btn-gold" style="padding:14px 40px; font-size:1.1rem;">
+            📦 Оформить заказ
+        </a>
+        <a href="{{ url_for('index') }}" class="btn btn-dark" style="padding:14px 30px;">
+            🛍️ Продолжить покупки
+        </a>
+    </div>
+    
+    <div style="margin-top:12px; color:rgba(160,144,112,0.4); font-size:0.85rem;">
+        💡 После оформления заказа вы получите уведомление в Telegram (если привязан)
+    </div>
+{% else %}
+    <p style="color:#a09070; text-align:center; padding:40px 0;">Корзина пуста 🍯</p>
+    <div style="text-align:center;">
+        <a href="{{ url_for('index') }}" class="btn btn-gold">🛍️ Перейти к покупкам</a>
+    </div>
+{% endif %}
+{% endblock %}

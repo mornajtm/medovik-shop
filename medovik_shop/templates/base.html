@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Медовик 🍯</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="app">
+    <header class="header">
+        <div class="logo">
+            <h1>Медовик</h1>
+            <span>АРЫ • АЛМАЗНАЯ РУДА</span>
+        </div>
+        <div class="user-panel">
+            {% if session.username %}
+                <span class="username">👤 {{ session.username }}</span>
+                <span class="balance">💎 {{ user.balance if user else 0 }} Ар</span>
+                <a href="{{ url_for('profile') }}">Профиль</a>
+                <a href="{{ url_for('cart') }}">🛒 Корзина</a>
+                {% if session.role == 'admin' %}
+                    <a href="{{ url_for('admin_dashboard') }}">⚙️ Админ</a>
+                {% endif %}
+                <a href="{{ url_for('logout') }}" class="btn btn-dark" style="padding:4px 14px;">Выйти</a>
+            {% else %}
+                <a href="{{ url_for('login') }}">Вход</a>
+                <a href="{{ url_for('register') }}" class="btn btn-gold" style="padding:4px 16px;">Регистрация</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <div class="nav-links">
+        <a href="{{ url_for('index') }}" {% if not category %}class="active"{% endif %}>🏠 Все</a>
+        <a href="{{ url_for('category', category='мёд') }}" {% if category == 'мёд' %}class="active"{% endif %}>🍯 Мёд</a>
+        <a href="{{ url_for('category', category='прополис') }}" {% if category == 'прополис' %}class="active"{% endif %}>🐝 Прополис</a>
+        <a href="{{ url_for('category', category='воск') }}" {% if category == 'воск' %}class="active"{% endif %}>🕯️ Воск</a>
+        <a href="{{ url_for('category', category='другое') }}" {% if category == 'другое' %}class="active"{% endif %}>📦 Другое</a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</div>
+</body>
+<!-- Добавь перед закрывающим тегом body в base.html -->
+<script>
+// Анимация при загрузке страницы - счётчики в админке
+document.addEventListener('DOMContentLoaded', function() {
+    // Плавное появление элементов
+    const cards = document.querySelectorAll('.stat-card .num');
+    cards.forEach(card => {
+        const text = card.textContent;
+        if (!isNaN(parseInt(text))) {
+            const target = parseInt(text);
+            let current = 0;
+            const increment = Math.ceil(target / 30);
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    card.textContent = target;
+                    clearInterval(timer);
+                } else {
+                    card.textContent = current;
+                }
+            }, 30);
+        }
+    });
+
+    // Парящие звёзды (декоративные)
+    const app = document.querySelector('.app');
+    for (let i = 0; i < 15; i++) {
+        const star = document.createElement('div');
+        star.style.cssText = `
+            position: fixed;
+            pointer-events: none;
+            color: rgba(247, 184, 43, ${0.1 + Math.random() * 0.2});
+            font-size: ${4 + Math.random() * 8}px;
+            top: ${Math.random() * 100}vh;
+            left: ${Math.random() * 100}vw;
+            animation: twinkle ${2 + Math.random() * 4}s ease-in-out infinite;
+            animation-delay: ${Math.random() * 3}s;
+            user-select: none;
+            z-index: -1;
+        `;
+        star.textContent = ['✦', '✧', '·'][Math.floor(Math.random() * 3)];
+        document.body.appendChild(star);
+    }
+});
+
+// Эффект при наведении на карточки товара
+document.querySelectorAll('.product-card .btn-gold').forEach(btn => {
+    btn.addEventListener('mouseenter', function() {
+        this.style.animation = 'pulse 0.6s ease';
+    });
+    btn.addEventListener('animationend', function() {
+        this.style.animation = '';
+    });
+});
+</script>
+</html>

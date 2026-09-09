@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 style="color:#f7b82b; margin-bottom:20px;">📦 Оформление заказа</h2>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:30px;">
+    <!-- Список товаров -->
+    <div style="background:rgba(255,255,255,0.03); border-radius:20px; padding:24px; border:1px solid rgba(247,184,43,0.08);">
+        <h4 style="color:#fde3a0; margin-bottom:16px;">🛒 Ваши товары</h4>
+        {% for item in cart_items %}
+            <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(247,184,43,0.05); color:#c8b88a;">
+                <span>
+                    {% if item.product.image %}
+                        <img src="{{ url_for('uploaded_file', filename=item.product.image) }}" style="width:30px;height:30px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:8px;">
+                    {% endif %}
+                    {{ item.product.name }} × {{ item.quantity }}
+                </span>
+                <span style="color:#f7b82b;">{{ item.product.price * item.quantity }} Ар</span>
+            </div>
+        {% endfor %}
+        <div style="margin-top:16px; font-size:1.3rem; color:#f7b82b; font-weight:700; text-align:right;">
+            Итого: {{ total }} Ар
+        </div>
+        <div style="margin-top:8px; color:rgba(160,144,112,0.5); font-size:0.85rem; text-align:right;">
+            💎 Ваш баланс: {{ user.balance }} Ар
+        </div>
+    </div>
+
+    <!-- Форма доставки -->
+    <div style="background:rgba(255,255,255,0.03); border-radius:20px; padding:24px; border:1px solid rgba(247,184,43,0.08);">
+        <h4 style="color:#fde3a0; margin-bottom:16px;">📍 Данные доставки</h4>
+        
+        <form method="POST" action="{{ url_for('checkout') }}">
+            <div style="margin-bottom:16px;">
+                <label style="color:#a09070; display:block; margin-bottom:4px;">🏪 Пункт выдачи (ПВЗ)</label>
+                <select name="pickup_point" required style="width:100%; padding:12px 16px; border-radius:30px; border:1px solid rgba(247,184,43,0.1); background:rgba(0,0,0,0.3); color:#fde3a0;">
+                    <option value="">Выберите ПВЗ</option>
+                    <option value="СДЭК - ТЦ Мега">СДЭК - ТЦ Мега</option>
+                    <option value="Почта России - Центральная">Почта России - Центральная</option>
+                    <option value="Boxberry - Ул. Ленина 15">Boxberry - Ул. Ленина 15</option>
+                    <option value="Яндекс Маркет - ТРЦ Европа">Яндекс Маркет - ТРЦ Европа</option>
+                    <option value="Самовывоз - Медовик офис">Самовывоз - Медовик офис</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom:16px;">
+                <label style="color:#a09070; display:block; margin-bottom:4px;">📍 Адрес доставки</label>
+                <input type="text" name="address" placeholder="Укажите адрес доставки" required style="width:100%; padding:12px 16px; border-radius:30px; border:1px solid rgba(247,184,43,0.1); background:rgba(0,0,0,0.3); color:#fde3a0;">
+            </div>
+
+            <div style="margin-top:20px;">
+                <button type="submit" class="btn btn-gold" style="width:100%; padding:14px; font-size:1.1rem;">
+                    ✅ Подтвердить заказ
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    select option {
+        background: #1a170f;
+        color: #fde3a0;
+    }
+</style>
+{% endblock %}

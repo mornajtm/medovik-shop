@@ -1,0 +1,1174 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+    background: #0a0a0f;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    background-image: 
+        radial-gradient(ellipse at 20% 50%, rgba(247, 184, 43, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 50%, rgba(247, 184, 43, 0.05) 0%, transparent 50%);
+}
+
+/* ============================================================
+   ОСНОВНЫЕ АНИМАЦИИ
+   ============================================================ */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes glowPulse {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(247, 184, 43, 0.1);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(247, 184, 43, 0.25);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% center;
+    }
+    100% {
+        background-position: 200% center;
+    }
+}
+
+@keyframes cardAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes twinkle {
+    0%, 100% {
+        opacity: 0.3;
+        transform: scale(0.8);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
+
+/* ============================================================
+   ОСНОВНОЙ КОНТЕЙНЕР
+   ============================================================ */
+
+.app {
+    max-width: 1400px;
+    width: 100%;
+    background: linear-gradient(160deg, rgba(26, 23, 15, 0.95), rgba(10, 10, 15, 0.98));
+    border-radius: 32px;
+    padding: 28px 36px;
+    border: 1px solid rgba(247, 184, 43, 0.15);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(247, 184, 43, 0.1);
+    backdrop-filter: blur(10px);
+    animation: fadeInUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ============================================================
+   ШАПКА С ЛОГОТИПОМ
+   ============================================================ */
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(247, 184, 43, 0.15);
+    margin-bottom: 24px;
+}
+
+.logo {
+    background-image: url('/static/logo.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: left center;
+    padding-left: 70px;
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition: all 0.4s ease;
+}
+
+.logo:hover {
+    transform: scale(1.02);
+    filter: drop-shadow(0 0 20px rgba(247, 184, 43, 0.2));
+}
+
+.logo h1 {
+    font-size: 2.4rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #f7b82b, #f5a623, #f7b82b);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+    letter-spacing: -0.5px;
+    line-height: 1;
+    animation: shimmer 4s ease-in-out infinite;
+}
+
+.logo span {
+    color: rgba(253, 227, 160, 0.6);
+    font-size: 0.85rem;
+    letter-spacing: 8px;
+    display: block;
+    margin-top: 2px;
+    -webkit-text-fill-color: rgba(253, 227, 160, 0.6);
+    transition: all 0.3s ease;
+}
+
+.logo:hover span {
+    letter-spacing: 10px;
+    color: rgba(253, 227, 160, 0.9);
+}
+
+/* ============================================================
+   ПОЛЬЗОВАТЕЛЬСКАЯ ПАНЕЛЬ
+   ============================================================ */
+
+.user-panel {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(255, 255, 255, 0.04);
+    padding: 6px 18px 6px 14px;
+    border-radius: 60px;
+    border: 1px solid rgba(247, 184, 43, 0.12);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.user-panel:hover {
+    border-color: rgba(247, 184, 43, 0.3);
+    box-shadow: 0 0 30px rgba(247, 184, 43, 0.05);
+}
+
+.user-panel .username {
+    color: #fde3a0;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.user-panel .balance {
+    color: #f7b82b;
+    font-weight: 700;
+    font-size: 1rem;
+    background: rgba(247, 184, 43, 0.12);
+    padding: 4px 14px;
+    border-radius: 40px;
+    border: 1px solid rgba(247, 184, 43, 0.15);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.balance::after {
+    content: '✦';
+    position: absolute;
+    right: -8px;
+    top: -8px;
+    font-size: 0.6rem;
+    color: #f7b82b;
+    animation: twinkle 2s ease-in-out infinite;
+}
+
+.user-panel .balance:hover {
+    transform: scale(1.1);
+    background: rgba(247, 184, 43, 0.2);
+    box-shadow: 0 0 30px rgba(247, 184, 43, 0.15);
+}
+
+.user-panel a {
+    color: rgba(253, 227, 160, 0.7);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 4px 10px;
+    transition: all 0.3s ease;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    position: relative;
+}
+
+.user-panel a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #f7b82b, transparent);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.user-panel a:hover {
+    background: rgba(247, 184, 43, 0.12);
+    color: #f7b82b;
+}
+
+.user-panel a:hover::after {
+    width: 80%;
+}
+
+/* ============================================================
+   КНОПКИ
+   ============================================================ */
+
+.btn {
+    padding: 8px 22px;
+    border: none;
+    border-radius: 40px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    text-decoration: none;
+    display: inline-block;
+    font-size: 0.9rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    transition: all 0.5s ease;
+    transform: translate(-50%, -50%);
+}
+
+.btn:active::after {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-gold {
+    background: linear-gradient(135deg, #f7b82b, #e09d1a);
+    color: #0a0a0f;
+    box-shadow: 0 4px 20px rgba(247, 184, 43, 0.25);
+}
+.btn-gold:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 35px rgba(247, 184, 43, 0.4);
+}
+
+.btn-gold:active {
+    transform: scale(0.95);
+}
+
+.btn-dark {
+    background: rgba(255, 255, 255, 0.06);
+    color: #fde3a0;
+    border: 1px solid rgba(247, 184, 43, 0.15);
+}
+.btn-dark:hover {
+    background: rgba(247, 184, 43, 0.12);
+    border-color: rgba(247, 184, 43, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn-danger {
+    background: rgba(255, 50, 50, 0.15);
+    color: #ff5555;
+    border: 1px solid rgba(255, 50, 50, 0.2);
+}
+.btn-danger:hover {
+    background: rgba(255, 50, 50, 0.25);
+    transform: translateY(-2px);
+}
+
+.btn-success {
+    background: rgba(50, 255, 100, 0.12);
+    color: #55ff88;
+    border: 1px solid rgba(50, 255, 100, 0.15);
+}
+.btn-success:hover {
+    background: rgba(50, 255, 100, 0.2);
+    transform: translateY(-2px);
+}
+
+.btn-sm {
+    padding: 4px 14px;
+    font-size: 0.8rem;
+}
+
+/* ============================================================
+   НАВИГАЦИЯ
+   ============================================================ */
+
+.nav-links {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 8px 0 20px;
+    padding: 6px 0;
+}
+
+.nav-links a {
+    color: rgba(160, 144, 112, 0.7);
+    text-decoration: none;
+    padding: 6px 18px;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    font-size: 0.9rem;
+    position: relative;
+}
+
+.nav-links a::before {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #f7b82b, transparent);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.nav-links a:hover::before,
+.nav-links a.active::before {
+    width: 60%;
+}
+
+.nav-links a:hover {
+    background: rgba(247, 184, 43, 0.08);
+    color: #f7b82b;
+    transform: translateY(-2px);
+}
+
+.nav-links a.active {
+    background: rgba(247, 184, 43, 0.12);
+    color: #f7b82b;
+    border: 1px solid rgba(247, 184, 43, 0.15);
+}
+
+/* ============================================================
+   ТОВАРЫ
+   ============================================================ */
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 24px;
+}
+
+.product-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(247, 184, 43, 0.08);
+    border-radius: 20px;
+    padding: 20px 16px 18px;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    animation: cardAppear 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+    position: relative;
+    overflow: hidden;
+}
+
+.product-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, rgba(247, 184, 43, 0.03), transparent 70%);
+    opacity: 0;
+    transition: all 0.6s ease;
+    pointer-events: none;
+}
+
+.product-card:hover::before {
+    opacity: 1;
+    animation: spin 10s linear infinite;
+}
+
+.product-card:hover {
+    border-color: rgba(247, 184, 43, 0.25);
+    box-shadow: 0 8px 40px rgba(247, 184, 43, 0.06);
+    transform: translateY(-6px) scale(1.01);
+}
+
+.product-card:active {
+    transform: scale(0.95);
+}
+
+/* Задержка для каждой карточки */
+.product-card:nth-child(1) { animation-delay: 0.05s; }
+.product-card:nth-child(2) { animation-delay: 0.10s; }
+.product-card:nth-child(3) { animation-delay: 0.15s; }
+.product-card:nth-child(4) { animation-delay: 0.20s; }
+.product-card:nth-child(5) { animation-delay: 0.25s; }
+.product-card:nth-child(6) { animation-delay: 0.30s; }
+.product-card:nth-child(7) { animation-delay: 0.35s; }
+.product-card:nth-child(8) { animation-delay: 0.40s; }
+.product-card:nth-child(9) { animation-delay: 0.45s; }
+.product-card:nth-child(10) { animation-delay: 0.50s; }
+.product-card:nth-child(11) { animation-delay: 0.55s; }
+.product-card:nth-child(12) { animation-delay: 0.60s; }
+
+.product-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 14px;
+    background: rgba(0, 0, 0, 0.3);
+    transition: all 0.5s ease;
+}
+
+.product-card:hover img {
+    transform: scale(1.03);
+}
+
+.product-card .no-image {
+    font-size: 4rem;
+    display: block;
+    padding: 30px 0;
+    transition: all 0.3s ease;
+}
+
+.product-card:hover .no-image {
+    animation: float 2s ease-in-out infinite;
+}
+
+.product-card .category {
+    color: rgba(247, 184, 43, 0.5);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 8px;
+    transition: all 0.3s ease;
+}
+
+.product-card:hover .category {
+    letter-spacing: 3px;
+    color: rgba(247, 184, 43, 0.7);
+}
+
+.product-card h3 {
+    color: #fde3a0;
+    font-size: 1.1rem;
+    margin: 6px 0 4px;
+    transition: all 0.3s ease;
+}
+
+.product-card:hover h3 {
+    color: #f7b82b;
+}
+
+.product-card .desc {
+    color: rgba(160, 144, 112, 0.6);
+    font-size: 0.85rem;
+    margin: 6px 0 10px;
+    min-height: 40px;
+}
+
+.product-card .price {
+    color: #f7b82b;
+    font-size: 1.4rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.product-card:hover .price {
+    transform: scale(1.05);
+}
+
+.product-card .price span {
+    font-size: 0.8rem;
+    color: rgba(160, 144, 112, 0.5);
+    font-weight: 400;
+}
+
+.product-card .stock {
+    color: rgba(160, 144, 112, 0.4);
+    font-size: 0.75rem;
+    margin: 4px 0 14px;
+}
+
+/* Ссылка-обёртка карточки */
+a.product-link {
+    text-decoration: none;
+    display: block;
+}
+
+/* ============================================================
+   СТРАНИЦА ТОВАРА
+   ============================================================ */
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    color: rgba(160, 144, 112, 0.5);
+    font-size: 0.9rem;
+}
+
+.breadcrumb a {
+    color: rgba(160, 144, 112, 0.5);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.breadcrumb a:hover {
+    color: #f7b82b;
+}
+
+.back-link {
+    color: rgba(160, 144, 112, 0.4);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.back-link:hover {
+    color: #f7b82b;
+    transform: translateX(-4px);
+}
+
+/* ============================================================
+   ФОРМЫ
+   ============================================================ */
+
+.auth-form {
+    max-width: 420px;
+    margin: 40px auto;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 40px 36px;
+    border-radius: 28px;
+    border: 1px solid rgba(247, 184, 43, 0.08);
+    animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.auth-form h2 {
+    color: #f7b82b;
+    text-align: center;
+    margin-bottom: 28px;
+    font-weight: 700;
+}
+
+.auth-form input,
+.auth-form select,
+.auth-form textarea {
+    width: 100%;
+    padding: 12px 18px;
+    margin-bottom: 14px;
+    border-radius: 30px;
+    border: 1px solid rgba(247, 184, 43, 0.1);
+    background: rgba(0, 0, 0, 0.3);
+    color: #fde3a0;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.auth-form input:focus,
+.auth-form select:focus,
+.auth-form textarea:focus {
+    outline: none;
+    border-color: rgba(247, 184, 43, 0.3);
+    box-shadow: 0 0 30px rgba(247, 184, 43, 0.05);
+    transform: scale(1.01);
+}
+
+.auth-form .btn {
+    width: 100%;
+    margin-top: 8px;
+}
+
+/* ============================================================
+   FLASH СООБЩЕНИЯ
+   ============================================================ */
+
+.flash {
+    padding: 12px 22px;
+    border-radius: 30px;
+    margin-bottom: 16px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    animation: fadeInUp 0.4s ease both;
+}
+
+.flash.success { 
+    background: rgba(50, 255, 100, 0.08); 
+    color: #55ff88; 
+    border: 1px solid rgba(50, 255, 100, 0.12); 
+}
+.flash.danger { 
+    background: rgba(255, 50, 50, 0.08); 
+    color: #ff5555; 
+    border: 1px solid rgba(255, 50, 50, 0.12); 
+}
+.flash.warning { 
+    background: rgba(255, 170, 0, 0.08); 
+    color: #ffbb33; 
+    border: 1px solid rgba(255, 170, 0, 0.12); 
+}
+.flash.info { 
+    background: rgba(68, 136, 255, 0.08); 
+    color: #88bbff; 
+    border: 1px solid rgba(68, 136, 255, 0.12); 
+}
+
+/* ============================================================
+   АДМИН-ПАНЕЛЬ
+   ============================================================ */
+
+.admin-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin: 20px 0 30px;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(247, 184, 43, 0.08);
+    border-radius: 18px;
+    padding: 20px 16px;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    animation: cardAppear 0.5s ease both;
+}
+
+.stat-card:nth-child(1) { animation-delay: 0.05s; }
+.stat-card:nth-child(2) { animation-delay: 0.10s; }
+.stat-card:nth-child(3) { animation-delay: 0.15s; }
+.stat-card:nth-child(4) { animation-delay: 0.20s; }
+.stat-card:nth-child(5) { animation-delay: 0.25s; }
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(247, 184, 43, 0.2);
+    box-shadow: 0 8px 30px rgba(247, 184, 43, 0.05);
+}
+
+.stat-card .num {
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: #f7b82b;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover .num {
+    transform: scale(1.05);
+}
+
+.stat-card .label {
+    color: rgba(160, 144, 112, 0.5);
+    font-size: 0.8rem;
+    margin-top: 4px;
+}
+
+/* ============================================================
+   ТАБЛИЦЫ АДМИНКИ
+   ============================================================ */
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+    font-size: 0.9rem;
+    overflow-x: auto;
+    display: block;
+}
+
+.admin-table tr {
+    transition: all 0.3s ease;
+}
+
+.admin-table tr:hover {
+    background: rgba(247, 184, 43, 0.03);
+}
+
+.admin-table th {
+    background: rgba(247, 184, 43, 0.06);
+    color: #f7b82b;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.admin-table td {
+    color: rgba(200, 184, 138, 0.8);
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(247, 184, 43, 0.05);
+}
+
+.admin-table .btn {
+    padding: 3px 14px;
+    font-size: 0.8rem;
+}
+
+.admin-table img {
+    width: 45px;
+    height: 45px;
+    object-fit: cover;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.admin-table img:hover {
+    transform: scale(1.1);
+}
+
+.admin-table input[type="text"],
+.admin-table input[type="number"] {
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(247, 184, 43, 0.1);
+    background: rgba(0, 0, 0, 0.3);
+    color: #fde3a0;
+    font-size: 0.8rem;
+    width: 100px;
+    transition: all 0.3s ease;
+}
+
+.admin-table input:focus {
+    outline: none;
+    border-color: rgba(247, 184, 43, 0.3);
+}
+
+/* ============================================================
+   БЕЙДЖИ
+   ============================================================ */
+
+.badge-banned {
+    color: #ff5555;
+    font-size: 0.75rem;
+    background: rgba(255, 50, 50, 0.12);
+    padding: 2px 12px;
+    border-radius: 30px;
+    display: inline-block;
+}
+
+.badge-active {
+    color: #55ff88;
+    font-size: 0.75rem;
+    background: rgba(50, 255, 100, 0.08);
+    padding: 2px 12px;
+    border-radius: 30px;
+    display: inline-block;
+}
+
+.badge-admin {
+    color: #f7b82b;
+    font-size: 0.75rem;
+    background: rgba(247, 184, 43, 0.12);
+    padding: 2px 12px;
+    border-radius: 30px;
+    display: inline-block;
+}
+
+/* ============================================================
+   КОРЗИНА
+   ============================================================ */
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(247, 184, 43, 0.06);
+    color: rgba(200, 184, 138, 0.8);
+    transition: all 0.3s ease;
+    animation: cardAppear 0.4s ease both;
+}
+
+.cart-item:hover {
+    background: rgba(247, 184, 43, 0.03);
+    padding-left: 24px;
+}
+
+.cart-total {
+    color: #f7b82b;
+    font-size: 1.6rem;
+    font-weight: 700;
+    text-align: right;
+    margin-top: 18px;
+    animation: glowPulse 3s ease-in-out infinite;
+}
+
+/* ============================================================
+   ПРОФИЛЬ
+   ============================================================ */
+
+.profile-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 16px 0;
+}
+
+.profile-card {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 20px;
+    padding: 24px;
+    border: 1px solid rgba(247, 184, 43, 0.08);
+    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    animation: cardAppear 0.5s ease both;
+}
+
+.profile-card:hover {
+    border-color: rgba(247, 184, 43, 0.15);
+    transform: translateY(-2px);
+}
+
+/* ============================================================
+   АДАПТИВНОСТЬ
+   ============================================================ */
+
+@media (max-width: 992px) {
+    .profile-section {
+        grid-template-columns: 1fr;
+    }
+    
+    .product-page-grid {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .app {
+        padding: 16px;
+        border-radius: 20px;
+    }
+    
+    .logo {
+        padding-left: 55px;
+        min-height: 50px;
+    }
+    
+    .logo h1 {
+        font-size: 1.8rem;
+    }
+    
+    .logo span {
+        font-size: 0.7rem;
+        letter-spacing: 4px;
+    }
+    
+    .user-panel {
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 8px 14px;
+        justify-content: center;
+    }
+    
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 16px;
+    }
+    
+    .product-card img {
+        height: 140px;
+    }
+    
+    .admin-table {
+        font-size: 0.75rem;
+    }
+    
+    .admin-table th,
+    .admin-table td {
+        padding: 6px 8px;
+    }
+    
+    .admin-table input[type="text"],
+    .admin-table input[type="number"] {
+        width: 60px;
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 8px;
+    }
+    
+    .app {
+        padding: 12px;
+        border-radius: 16px;
+    }
+    
+    .logo {
+        padding-left: 45px;
+        min-height: 40px;
+    }
+    
+    .logo h1 {
+        font-size: 1.4rem;
+    }
+    
+    .logo span {
+        font-size: 0.6rem;
+        letter-spacing: 3px;
+    }
+    
+    .products-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+    
+    .product-card {
+        padding: 12px 10px;
+    }
+    
+    .product-card img {
+        height: 100px;
+    }
+    
+    .product-card h3 {
+        font-size: 0.9rem;
+    }
+    
+    .product-card .price {
+        font-size: 1.1rem;
+    }
+    
+    .auth-form {
+        padding: 24px 16px;
+        margin: 20px auto;
+    }
+    
+    .nav-links a {
+        padding: 4px 12px;
+        font-size: 0.8rem;
+    }
+    
+    .user-panel a {
+        font-size: 0.8rem;
+        padding: 2px 8px;
+    }
+    
+    .user-panel .balance {
+        font-size: 0.8rem;
+        padding: 2px 10px;
+    }
+    
+    .admin-stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+    
+    .stat-card {
+        padding: 12px;
+    }
+    
+    .stat-card .num {
+        font-size: 1.6rem;
+    }
+}
+
+/* ============================================================
+   СТРАНИЦА ТОВАРА (GRID)
+   ============================================================ */
+
+.product-page-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 40px;
+    animation: fadeInUp 0.6s ease both;
+}
+
+.product-page-grid .product-image {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 24px;
+    padding: 20px;
+    border: 1px solid rgba(247, 184, 43, 0.08);
+}
+
+.product-page-grid .product-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 16px;
+    max-height: 500px;
+    object-fit: cover;
+}
+
+.product-page-grid .product-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.product-page-grid .product-info .category-tag {
+    color: rgba(247, 184, 43, 0.5);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+}
+
+.product-page-grid .product-info h1 {
+    color: #fde3a0;
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+}
+
+.product-page-grid .product-info .desc-text {
+    color: rgba(160, 144, 112, 0.7);
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.product-page-grid .product-info .price-block {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.product-page-grid .product-info .price-block .price-big {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #f7b82b;
+}
+
+.product-page-grid .product-info .price-block .price-big span {
+    font-size: 1.2rem;
+    color: rgba(160, 144, 112, 0.5);
+}
+
+.product-page-grid .product-info .price-block .stock-status {
+    color: rgba(160, 144, 112, 0.4);
+    font-size: 0.9rem;
+}
+
+.product-page-grid .product-info .action-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* ============================================================
+   ПОХОЖИЕ ТОВАРЫ
+   ============================================================ */
+
+.similar-products {
+    margin-top: 40px;
+}
+
+.similar-products h3 {
+    color: #fde3a0;
+    margin-bottom: 16px;
+}
+
+/* ============================================================
+   ДОПОЛНИТЕЛЬНЫЕ УТИЛИТЫ
+   ============================================================ */
+
+.text-center {
+    text-align: center;
+}
+
+.text-gold {
+    color: #f7b82b;
+}
+
+.text-muted {
+    color: rgba(160, 144, 112, 0.5);
+}
+
+.mt-16 {
+    margin-top: 16px;
+}
+
+.mb-16 {
+    margin-bottom: 16px;
+}
+
+.mt-24 {
+    margin-top: 24px;
+}
+
+.mb-24 {
+    margin-bottom: 24px;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gap-8 {
+    gap: 8px;
+}
+
+.gap-12 {
+    gap: 12px;
+}
+
+.gap-16 {
+    gap: 16px;
+}
+
+.w-full {
+    width: 100%;
+}

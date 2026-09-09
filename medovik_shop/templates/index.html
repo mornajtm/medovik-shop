@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 style="color:#f7b82b; margin-bottom:20px;">
+    {% if category %}🍯 {{ category|capitalize }}{% else %}🍯 Все товары{% endif %}
+</h2>
+
+<div class="products-grid">
+    {% for p in products %}
+    <a href="{{ url_for('product_page', product_id=p.id) }}" style="text-decoration:none; display:block;">
+        <div class="product-card" style="cursor:pointer;">
+            {% if p.image %}
+                <img src="{{ url_for('uploaded_file', filename=p.image) }}" alt="{{ p.name }}">
+            {% else %}
+                <span class="no-image">🍯</span>
+            {% endif %}
+            <div class="category">{{ p.category }}</div>
+            <h3>{{ p.name }}</h3>
+            <div class="desc">{{ p.description[:60] }}{% if p.description|length > 60 %}...{% endif %}</div>
+            <div class="price">{{ p.price }} <span>Ар</span></div>
+            <div class="stock">в наличии: {{ p.stock }}</div>
+            {% if p.stock and p.stock > 0 %}
+                <span class="btn btn-gold" style="font-size:0.9rem; display:inline-block; pointer-events:none;">В корзину</span>
+            {% else %}
+                <span style="color:#ff6666; font-size:0.8rem;">Нет в наличии</span>
+            {% endif %}
+        </div>
+    </a>
+    {% else %}
+    <p style="color:#a09070; text-align:center; grid-column:1/-1; padding:40px 0;">Товаров пока нет</p>
+    {% endfor %}
+</div>
+{% endblock %}

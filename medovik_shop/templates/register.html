@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="auth-form">
+    <h2>🐝 Регистрация</h2>
+    <form method="POST">
+        <input type="text" name="username" placeholder="Имя пользователя" required>
+        <input type="password" name="password" placeholder="Пароль" required>
+        <button type="submit" class="btn btn-gold">Создать аккаунт</button>
+    </form>
+    <p style="color:#a09070; text-align:center; margin-top:16px;">
+        Уже есть? <a href="{{ url_for('login') }}" style="color:#f7b82b;">Войти</a>
+    </p>
+</div>
+{% endblock %}
