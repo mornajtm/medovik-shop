@@ -12,8 +12,9 @@ import datetime
 import threading
 import asyncio
 import time
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
+import json
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(32)
@@ -30,12 +31,12 @@ db = Database()
 TELEGRAM_TOKEN = "8827095918:AAEcl15umAZe3LGNKJ1mhqm_eZmPY55Gzrs"
 bot_app = None
 bot_running = False
+pending_links = {}  # Временное хранилище для ссылок привязки
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def get_minecraft_avatar(username):
-    """Скачивает голову скина Minecraft"""
     try:
         skin_url = f"https://crafatar.com/skins/{username}"
         response = requests.get(skin_url, timeout=10)
@@ -55,18 +56,283 @@ def get_minecraft_avatar(username):
         print(f"Ошибка загрузки скина: {e}")
         return None
 
-def send_telegram_notification(order_id, user_id, total, address, pickup_point):
-    """Отправляет уведомление в Telegram при создании заказа"""
+# ===== БОТ КОМАНДЫ =====
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    keyboard = [
+        [KeyboardButton("📦 Мои заказы"), KeyboardButton("🔗 Привязать аккаунт")],
+        [KeyboardButton("🛍️ Стать продавцом"), KeyboardButton("❓ Помощь")],
+        [KeyboardButton("🏠 Главная страница")]
+    ]
+    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+    
+    await update.message.reply_text(
+        "🐝 <b>Добро пожаловать в Медовик!</b>\n\n"
+        "🍯 Здесь вы можете:\n"
+        "• Отслеживать свои заказы\n"
+        "• Привязать аккаунт\n"
+        "• Стать продавцом\n"
+        "• Получать уведомления\n\n"
+        "Выберите действие ниже:",
+        parse_mode='HTML',
+        reply_markup=reply_markup
+    )
+
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        "🍯 <b>Помощь по боту</b>\n\n"
+        "📌 <b>Команды:</b>\n"
+        "/start - Главное меню\n"
+        "/help - Эта справка\n"
+        "/orders - Мои заказы\n"
+        "/link - Привязать аккаунт\n"
+        "/seller - Стать продавцом\n\n"
+        "🔗 <b>Привязка аккаунта:</b>\n"
+        "1. Зайдите на сайт\n"
+        "2. В профиле укажите Telegram\n"
+        "3. Нажмите /link в боте\n\n"
+        "📦 <b>Статусы заказов:</b>\n"
+        "🔵 Собираем - заказ собирается\n"
+        "🟡 Доставляем - заказ в пути\n"
+        "✅ Доставлен - заказ получен",
+        parse_mode='HTML'
+    )
+
+async def orders_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user = db.get_user_by_telegram(update.message.from_user.username)
+    if not user:
+        await update.message.reply_text(
+            "❌ Аккаунт не найден.\n"
+            "Сначала привяжите Telegram на сайте!\n"
+            "Нажмите /link для инструкции."
+        )
+        return
+    
+    orders = db.get_user_orders(user['id'])
+    if not orders:
+        await update.message.reply_text(
+            "📭 У вас пока нет заказов.\n"
+            "Перейдите на сайт и сделайте покупку! 🛒"
+        )
+        return
+    
+    status_emoji = {
+        'pending': '🆕',
+        'collecting': '🔵',
+        'delivering': '🟡',
+        'delivered': '✅'
+    }
+    status_names = {
+        'pending': 'Ожидает',
+        'collecting': 'Собираем',
+        'delivering': 'Доставляем',
+        'delivered': 'Доставлен'
+    }
+    
+    message = "📦 <b>Ваши заказы:</b>\n\n"
+    for order in orders[:10]:
+        emoji = status_emoji.get(order['status'], '🆕')
+        message += f"{emoji} <b>Заказ #{order['id']}</b>\n"
+        message += f"   Сумма: {order['total']} 🍯\n"
+        message += f"   Статус: {status_names.get(order['status'], order['status'])}\n"
+        message += f"   📅 {order['created_at'][:16]}\n\n"
+    
+    await update.message.reply_text(message, parse_mode='HTML')
+
+async def link_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user = db.get_user_by_telegram(update.message.from_user.username)
+    if user:
+        await update.message.reply_text(
+            f"✅ Ваш аккаунт уже привязан!\n"
+            f"👤 Пользователь: {user['username']}\n"
+            f"🍯 Баланс: {user['balance']} 🍯"
+        )
+        return
+    
+    import secrets
+    link_code = secrets.token_hex(8)
+    pending_links[link_code] = update.message.from_user.username
+    
+    await update.message.reply_text(
+        f"🔗 <b>Привязка аккаунта</b>\n\n"
+        f"1. Зайдите на сайт: https://medovik-shop.onrender.com\n"
+        f"2. Войдите в свой профиль\n"
+        f"3. В поле Telegram введите: @{update.message.from_user.username}\n"
+        f"4. После сохранения нажмите кнопку ниже\n\n"
+        f"📌 Ваш код: <code>{link_code}</code>",
+        parse_mode='HTML'
+    )
+    
+    keyboard = [[InlineKeyboardButton("✅ Проверить привязку", callback_data=f"check_link_{link_code}")]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    
+    await update.message.reply_text(
+        "Нажмите кнопку после сохранения Telegram на сайте:",
+        reply_markup=reply_markup
+    )
+
+async def seller_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user = db.get_user_by_telegram(update.message.from_user.username)
+    if not user:
+        await update.message.reply_text(
+            "❌ Сначала привяжите аккаунт!\n"
+            "Нажмите /link для инструкции."
+        )
+        return
+    
+    if user['role'] == 'seller' or user['role'] == 'admin':
+        await update.message.reply_text(
+            "✅ Вы уже являетесь продавцом!\n"
+            "Вы можете добавлять товары через админ-панель."
+        )
+        return
+    
+    keyboard = [
+        [InlineKeyboardButton("✅ Стать продавцом", callback_data="become_seller")],
+        [InlineKeyboardButton("❌ Отмена", callback_data="cancel_seller")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    
+    await update.message.reply_text(
+        "🛍️ <b>Стать продавцом</b>\n\n"
+        "Как продавец вы сможете:\n"
+        "• Добавлять свои товары\n"
+        "• Управлять ценами\n"
+        "• Получать уведомления о заказах\n\n"
+        "Согласны стать продавцом?",
+        parse_mode='HTML',
+        reply_markup=reply_markup
+    )
+
+async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    
+    data = query.data
+    
+    if data.startswith('check_link_'):
+        code = data.replace('check_link_', '')
+        username = pending_links.get(code)
+        
+        if not username:
+            await query.edit_message_text("❌ Код устарел. Нажмите /link заново.")
+            return
+        
+        user = db.get_user_by_telegram(username)
+        if user:
+            await query.edit_message_text(
+                f"✅ <b>Привязка успешна!</b>\n\n"
+                f"👤 Пользователь: {user['username']}\n"
+                f"🍯 Баланс: {user['balance']} 🍯\n"
+                f"🎉 Теперь вы будете получать уведомления о заказах!",
+                parse_mode='HTML'
+            )
+            del pending_links[code]
+        else:
+            await query.edit_message_text(
+                "⏳ Аккаунт ещё не привязан.\n\n"
+                "1. Зайдите на сайт\n"
+                "2. В профиле укажите Telegram: @" + username + "\n"
+                "3. Нажмите кнопку ещё раз",
+                parse_mode='HTML'
+            )
+    
+    elif data == 'become_seller':
+        user = db.get_user_by_telegram(query.from_user.username)
+        if user:
+            db.make_seller(user['id'])
+            await query.edit_message_text(
+                "✅ <b>Поздравляем! Вы стали продавцом!</b>\n\n"
+                "Теперь вы можете:\n"
+                "• Добавлять товары на сайт\n"
+                "• Управлять своими ценами\n"
+                "• Получать уведомления о заказах\n\n"
+                "Перейдите на сайт для управления товарами!",
+                parse_mode='HTML'
+            )
+    
+    elif data == 'cancel_seller':
+        await query.edit_message_text("❌ Отменено. Вы не стали продавцом.")
+
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    text = update.message.text
+    
+    if text == "🏠 Главная страница":
+        await update.message.reply_text(
+            "🌐 <b>Наш сайт:</b>\n"
+            "https://medovik-shop.onrender.com\n\n"
+            "Здесь вы можете:\n"
+            "• Просматривать товары\n"
+            "• Покупать за 🍯 Мед коины\n"
+            "• Управлять профилем",
+            parse_mode='HTML'
+        )
+    elif text == "📦 Мои заказы":
+        await orders_command(update, context)
+    elif text == "🔗 Привязать аккаунт":
+        await link_command(update, context)
+    elif text == "🛍️ Стать продавцом":
+        await seller_command(update, context)
+    elif text == "❓ Помощь":
+        await help_command(update, context)
+
+def run_bot():
     global bot_app, bot_running
     
+    if not TELEGRAM_TOKEN or TELEGRAM_TOKEN == "YOUR_BOT_TOKEN":
+        print("⚠️ Telegram бот не запущен: токен не указан!")
+        return
+    
+    try:
+        application = Application.builder().token(TELEGRAM_TOKEN).build()
+        
+        application.add_handler(CommandHandler("start", start))
+        application.add_handler(CommandHandler("help", help_command))
+        application.add_handler(CommandHandler("orders", orders_command))
+        application.add_handler(CommandHandler("link", link_command))
+        application.add_handler(CommandHandler("seller", seller_command))
+        
+        application.add_handler(CallbackQueryHandler(button_handler))
+        application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+        
+        bot_app = application
+        bot_running = True
+        
+        print("🤖 Telegram бот запущен!")
+        application.run_polling(allowed_updates=Update.ALL_TYPES)
+    except Exception as e:
+        print(f"❌ Ошибка запуска бота: {e}")
+        bot_running = False
+
+# ===== МАРШРУТЫ ФЛЕСК =====
+def login_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if 'user_id' not in session:
+            flash('Войдите в систему', 'warning')
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated
+
+def admin_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if 'user_id' not in session:
+            flash('Войдите в систему', 'warning')
+            return redirect(url_for('login'))
+        user = db.get_user(session['user_id'])
+        if not user or (user['role'] != 'admin' and user['role'] != 'seller'):
+            flash('Доступ запрещён', 'danger')
+            return redirect(url_for('index'))
+        return f(*args, **kwargs)
+    return decorated
+
+def send_telegram_notification(order_id, user_id, total, address, pickup_point):
     if not bot_app or not bot_running:
-        print("⚠️ Бот не запущен, уведомление не отправлено")
         return
     
     try:
         user = db.get_user(user_id)
         if not user or not user.get('telegram'):
-            print(f"⚠️ У пользователя {user_id} нет Telegram")
             return
         
         telegram_id = user['telegram'].replace('@', '')
@@ -78,7 +344,7 @@ def send_telegram_notification(order_id, user_id, total, address, pickup_point):
 
 📦 Заказ #{order_id}
 👤 Покупатель: {user['username']}
-💰 Сумма: {total} Ар
+💰 Сумма: {total} 🍯
 
 📍 <b>Адрес доставки:</b>
 {address}
@@ -113,9 +379,6 @@ def send_telegram_notification(order_id, user_id, total, address, pickup_point):
         print(f"❌ Ошибка отправки в Telegram: {e}")
 
 def update_telegram_order_status(order_id, status_text):
-    """Обновляет статус заказа в Telegram"""
-    global bot_app, bot_running
-    
     if not bot_app or not bot_running:
         return
     
@@ -147,7 +410,7 @@ def update_telegram_order_status(order_id, status_text):
 Статус: {status_emoji.get(status_text, '🔵')} <b>{status_names.get(status_text, status_text)}</b>
 
 👤 Покупатель: {user['username']}
-💰 Сумма: {order['total']} Ар
+💰 Сумма: {order['total']} 🍯
 📅 Обновлён: {datetime.datetime.now().strftime('%d.%m.%Y %H:%M')}
 """
         asyncio.run_coroutine_threadsafe(
@@ -162,147 +425,17 @@ def update_telegram_order_status(order_id, status_text):
     except Exception as e:
         print(f"❌ Ошибка обновления статуса в Telegram: {e}")
 
-# ===== БОТ КОМАНДЫ =====
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
-        "🐝 <b>Добро пожаловать в Медовик!</b>\n\n"
-        "Здесь вы можете:\n"
-        "• Отслеживать свои заказы\n"
-        "• Получать уведомления о статусе\n"
-        "• Управлять доставкой\n\n"
-        "Свяжите ваш Telegram с аккаунтом на сайте, чтобы получать уведомления!",
-        parse_mode='HTML'
-    )
-
-async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
-        "🍯 <b>Помощь по боту</b>\n\n"
-        "1. Зарегистрируйтесь на сайте Медовик\n"
-        "2. В профиле укажите ваш Telegram (@username)\n"
-        "3. При создании заказа вы получите уведомление\n"
-        "4. Статус заказа можно отслеживать в боте\n\n"
-        "Статусы:\n"
-        "🔵 Собираем - заказ собирается\n"
-        "🟡 Доставляем - заказ в пути\n"
-        "✅ Доставлен - заказ получен",
-        parse_mode='HTML'
-    )
-
-async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user = db.get_user_by_telegram(update.message.from_user.username)
-    if not user:
-        await update.message.reply_text(
-            "❌ Аккаунт не найден.\nПривяжите Telegram в профиле на сайте!"
-        )
-        return
-    
-    orders = db.get_user_orders(user['id'])
-    if not orders:
-        await update.message.reply_text("📭 У вас пока нет заказов.")
-        return
-    
-    status_emoji = {
-        'pending': '🆕',
-        'collecting': '🔵',
-        'delivering': '🟡',
-        'delivered': '✅'
-    }
-    
-    message = "📦 <b>Ваши заказы:</b>\n\n"
-    for order in orders[:5]:
-        emoji = status_emoji.get(order['status'], '🆕')
-        message += f"{emoji} Заказ #{order['id']}: {order['total']} Ар\n"
-    
-    await update.message.reply_text(message, parse_mode='HTML')
-
-async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-    
-    data = query.data.split('_')
-    if data[0] == 'order' and data[1] == 'status':
-        order_id = int(data[2])
-        status = data[3]
-        
-        db.update_order_status(order_id, status)
-        
-        status_emoji = {
-            'collecting': '🔵',
-            'delivering': '🟡',
-            'delivered': '✅'
-        }
-        status_names = {
-            'collecting': 'Собираем',
-            'delivering': 'Доставляем',
-            'delivered': 'Доставлен'
-        }
-        
-        new_text = query.message.text.replace(
-            f"Статус: {status_emoji.get(status, '🔵')} <b>{status_names.get(status, status)}</b>",
-            f"Статус: {status_emoji.get(status, '🔵')} <b>{status_names.get(status, status)}</b> ✅"
-        )
-        
-        await query.edit_message_text(new_text, parse_mode='HTML')
-        await query.message.reply_text(
-            f"✅ Статус заказа #{order_id} обновлён на: {status_names.get(status, status)}"
-        )
-
-def run_bot():
-    """Запуск Telegram бота"""
-    global bot_app, bot_running
-    
-    if not TELEGRAM_TOKEN or TELEGRAM_TOKEN == "YOUR_BOT_TOKEN":
-        print("⚠️ Telegram бот не запущен: токен не указан!")
-        return
-    
-    try:
-        application = Application.builder().token(TELEGRAM_TOKEN).connect_timeout(30).read_timeout(30).build()
-        application.add_handler(CommandHandler("start", start))
-        application.add_handler(CommandHandler("help", help_command))
-        application.add_handler(CommandHandler("status", status))
-        application.add_handler(CallbackQueryHandler(button_handler))
-        
-        bot_app = application
-        bot_running = True
-        
-        print("🤖 Telegram бот запущен!")
-        application.run_polling(allowed_updates=Update.ALL_TYPES)
-    except Exception as e:
-        print(f"❌ Ошибка запуска бота: {e}")
-        bot_running = False
-
-# ===== МАРШРУТЫ ФЛЕСК =====
-def login_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if 'user_id' not in session:
-            flash('Войдите в систему', 'warning')
-            return redirect(url_for('login'))
-        return f(*args, **kwargs)
-    return decorated
-
-def admin_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if 'user_id' not in session:
-            flash('Войдите в систему', 'warning')
-            return redirect(url_for('login'))
-        user = db.get_user(session['user_id'])
-        if not user or user['role'] != 'admin':
-            flash('Доступ запрещён', 'danger')
-            return redirect(url_for('index'))
-        return f(*args, **kwargs)
-    return decorated
-
 @app.route('/')
 def index():
     products = db.get_all_products()
-    return render_template('index.html', products=products)
+    ads = db.get_all_ads()
+    return render_template('index.html', products=products, ads=ads)
 
 @app.route('/category/<category>')
 def category(category):
     products = db.get_products_by_category(category)
-    return render_template('index.html', products=products, category=category)
+    ads = db.get_all_ads()
+    return render_template('index.html', products=products, category=category, ads=ads)
 
 @app.route('/product/<int:product_id>')
 def product_page(product_id):
@@ -441,7 +574,7 @@ def checkout():
                 total += product['price'] * item['quantity']
         
         if user['balance'] < total:
-            flash(f'Недостаточно Ар! Нужно {total}, у вас {user["balance"]}', 'danger')
+            flash(f'Недостаточно 🍯! Нужно {total}, у вас {user["balance"]}', 'danger')
             return redirect(url_for('cart'))
         
         order_id = db.create_order(session['user_id'], total, address, pickup_point)
@@ -451,11 +584,10 @@ def checkout():
         
         db.update_balance(session['user_id'], -total)
         
-        # Отправка в Telegram (если бот работает)
         send_telegram_notification(order_id, session['user_id'], total, address, pickup_point)
         
         session['cart'] = []
-        flash(f'Заказ #{order_id} оформлен! -{total} Ар', 'success')
+        flash(f'Заказ #{order_id} оформлен! -{total} 🍯', 'success')
         return redirect(url_for('profile'))
     
     user = db.get_user(session['user_id'])
@@ -547,7 +679,7 @@ def admin_add_balance(user_id):
         flash('Сумма должна быть больше 0', 'danger')
         return redirect(url_for('admin_users'))
     db.update_balance(user_id, amount)
-    flash(f'Добавлено {amount} Ар', 'success')
+    flash(f'Добавлено {amount} 🍯', 'success')
     return redirect(url_for('admin_users'))
 
 @app.route('/admin/products')
@@ -565,6 +697,7 @@ def add_product():
         category = request.form.get('category')
         price = int(request.form.get('price', 0))
         stock = int(request.form.get('stock', 0))
+        discount = int(request.form.get('discount', 0))
         
         if price <= 0:
             flash('Цена должна быть больше 0', 'danger')
@@ -576,7 +709,7 @@ def add_product():
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         
-        db.add_product(name, desc, category, price, stock, filename)
+        db.add_product(name, desc, category, price, stock, filename, discount)
         flash('Товар добавлен', 'success')
     except Exception as e:
         flash(f'Ошибка: {str(e)}', 'danger')
@@ -595,6 +728,29 @@ def delete_product(product_id):
     flash('Товар удалён', 'info')
     return redirect(url_for('admin_products'))
 
+@app.route('/admin/ads')
+@admin_required
+def admin_ads():
+    ads = db.get_all_ads()
+    return render_template('admin/ads.html', ads=ads)
+
+@app.route('/admin/add_ad', methods=['POST'])
+@admin_required
+def add_ad():
+    title = request.form.get('title')
+    text = request.form.get('text')
+    link = request.form.get('link', '')
+    db.add_ad(title, text, link, '')
+    flash('Реклама добавлена', 'success')
+    return redirect(url_for('admin_ads'))
+
+@app.route('/admin/delete_ad/<int:ad_id>')
+@admin_required
+def delete_ad(ad_id):
+    db.delete_ad(ad_id)
+    flash('Реклама удалена', 'info')
+    return redirect(url_for('admin_ads'))
+
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
@@ -607,20 +763,7 @@ def inject_user():
     return {'user': user}
 
 if __name__ == '__main__':
-    # Запускаем бота в отдельном потоке с обработкой ошибок
-    try:
-        bot_thread = threading.Thread(target=run_bot, daemon=True)
-        bot_thread.start()
-        time.sleep(3)  # Даём время на запуск
-    except Exception as e:
-        print(f"⚠️ Бот не запущен: {e}")
-        print("✅ Сайт продолжит работу без бота!")
- 
-    # Запускаем Flask
-    print("🚀 Запуск сайта Медовик...")
-    app.run(debug=True, host='0.0.0.0', port=5000)
-
-app.debug = False
-
-if __name__ == '__main__':
+    bot_thread = threading.Thread(target=run_bot, daemon=True)
+    bot_thread.start()
+    time.sleep(2)
     app.run(debug=True, host='0.0.0.0', port=5000)
