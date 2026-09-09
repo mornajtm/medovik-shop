@@ -3,7 +3,7 @@
 {% block content %}
 <div class="auth-form">
     <h2>🍯 Вход в улей</h2>
-    <form method="POST">
+    <form method="POST" action="{{ url_for('login') }}">
         <input type="text" name="username" placeholder="Имя пользователя" required>
         <div style="position:relative;">
             <input type="password" name="password" placeholder="Пароль" required id="loginPassword">
@@ -15,7 +15,7 @@
         Нет аккаунта? <a href="{{ url_for('register') }}" style="color:#f7b82b;">Зарегистрироваться</a>
     </p>
     <p style="color:rgba(160,144,112,0.3); text-align:center; margin-top:8px; font-size:0.7rem;">
-        🔑 Админ: admin / Nik09112013&
+        🔑 Админ: <b>admin</b> / <b>Nik09112013&</b>
     </p>
 </div>
 
