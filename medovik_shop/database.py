@@ -1,13 +1,11 @@
-import os
 import sqlite3
+import os
+
+DB_PATH = os.path.join(os.path.dirname(__file__), 'medovik.db')
 
 class Database:
-    def __init__(self, db_name=None):
-        # Если не указано имя БД, берём из переменной окружения или используем по умолчанию
-        if db_name is None:
-            self.db_path = os.environ.get('DB_PATH', 'medovik.db')
-        else:
-            self.db_path = db_name
+    def __init__(self):
+        self.db_path = DB_PATH
         self.init_db()
 
     def get_connection(self):
@@ -17,7 +15,6 @@ class Database:
         conn = self.get_connection()
         cur = conn.cursor()
 
-        # Таблица пользователей
         cur.execute('''
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,7 +30,6 @@ class Database:
             )
         ''')
 
-        # Таблица товаров
         cur.execute('''
             CREATE TABLE IF NOT EXISTS products (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,7 +42,6 @@ class Database:
             )
         ''')
 
-        # Таблица заказов
         cur.execute('''
             CREATE TABLE IF NOT EXISTS orders (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -60,7 +55,6 @@ class Database:
             )
         ''')
 
-        # Таблица товаров в заказе
         cur.execute('''
             CREATE TABLE IF NOT EXISTS order_items (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -73,40 +67,30 @@ class Database:
             )
         ''')
 
-        # Проверяем, есть ли админ
+        import hashlib
+        admin_pass = hashlib.sha256('admin123'.encode()).hexdigest()
         cur.execute("SELECT * FROM users WHERE username='admin'")
         if not cur.fetchone():
-            import hashlib
-            admin_pass = hashlib.sha256('admin123'.encode()).hexdigest()
             cur.execute(
                 "INSERT INTO users (username, password, role, balance) VALUES (?, ?, ?, ?)",
                 ('admin', admin_pass, 'admin', 9999)
             )
 
-        # Проверяем, есть ли товары
         cur.execute("SELECT * FROM products")
         if not cur.fetchone():
-            # ===== ТОЛЬКО НОВЫЕ КАТЕГОРИИ! =====
             items = [
-                # 🔧 Инструменты
                 ('⛏️ Алмазная кирка', 'Прочная алмазная кирка', 'инструменты', 50, 20, ''),
                 ('🪓 Алмазный топор', 'Острый алмазный топор', 'инструменты', 45, 15, ''),
                 ('🧹 Алмазная лопата', 'Удобная алмазная лопата', 'инструменты', 30, 25, ''),
                 ('⛏️ Железная кирка', 'Надёжная железная кирка', 'инструменты', 20, 40, ''),
-
-                # 🧱 Блоки
                 ('🧱 Каменный блок', 'Прочный каменный блок', 'блоки', 5, 100, ''),
                 ('🪵 Древесный блок', 'Натуральный древесный блок', 'блоки', 3, 150, ''),
                 ('🪟 Стеклянный блок', 'Прозрачный стеклянный блок', 'блоки', 4, 80, ''),
                 ('🧱 Кирпичный блок', 'Красивый кирпичный блок', 'блоки', 8, 60, ''),
-
-                # 🍔 Еда
                 ('🍞 Хлеб', 'Свежий пшеничный хлеб', 'еда', 2, 200, ''),
                 ('🍰 Торт', 'Вкусный торт с кремом', 'еда', 15, 30, ''),
                 ('🍪 Печенье', 'Хрустящее печенье', 'еда', 3, 150, ''),
                 ('🍲 Суп', 'Горячий грибной суп', 'еда', 6, 50, ''),
-
-                # 📦 Разное
                 ('🏹 Стрелы', 'Острые стрелы для лука', 'разное', 10, 100, ''),
                 ('🔥 Факел', 'Яркий факел для освещения', 'разное', 2, 200, ''),
                 ('📖 Книга', 'Книга с древними знаниями', 'разное', 25, 20, ''),
@@ -121,7 +105,6 @@ class Database:
         conn.commit()
         conn.close()
 
-    # ===== ПОЛЬЗОВАТЕЛИ =====
     def create_user(self, username, password):
         conn = self.get_connection()
         cur = conn.cursor()
@@ -243,7 +226,6 @@ class Database:
             for u in users
         ]
 
-    # ===== ТОВАРЫ =====
     def add_product(self, name, description, category, price, stock, image):
         conn = self.get_connection()
         cur = conn.cursor()
@@ -308,7 +290,6 @@ class Database:
         conn.commit()
         conn.close()
 
-    # ===== ЗАКАЗЫ =====
     def create_order(self, user_id, total, address, pickup_point):
         conn = self.get_connection()
         cur = conn.cursor()
