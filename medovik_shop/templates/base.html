@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Медовик 🍯</title>
-    <link rel="icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/png">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         [data-theme="light"] {
@@ -45,6 +44,7 @@
             border-radius: 32px;
         }
         
+        /* ===== ТАЙМЕР ===== */
         .timer-overlay {
             position: fixed;
             top: 0;
@@ -148,12 +148,6 @@
         .timer-message span {
             color: #f7b82b;
             font-weight: 600;
-        }
-
-        .admin-login-btn {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(247,184,43,0.1);
         }
 
         @keyframes floatLogo {
@@ -396,79 +390,6 @@
             border: 1px solid rgba(247,184,43,0.15);
         }
 
-        .flash {
-            padding: 12px 22px;
-            border-radius: 30px;
-            margin-bottom: 16px;
-            font-weight: 500;
-            font-size: 0.95rem;
-        }
-        .flash.success { background: rgba(50,255,100,0.08); color: #55ff88; border: 1px solid rgba(50,255,100,0.12); }
-        .flash.danger { background: rgba(255,50,50,0.08); color: #ff5555; border: 1px solid rgba(255,50,50,0.12); }
-        .flash.warning { background: rgba(255,170,0,0.08); color: #ffbb33; border: 1px solid rgba(255,170,0,0.12); }
-        .flash.info { background: rgba(68,136,255,0.08); color: #88bbff; border: 1px solid rgba(68,136,255,0.12); }
-
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 24px;
-        }
-        .product-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(247,184,43,0.08);
-            border-radius: 20px;
-            padding: 20px 16px 18px;
-            text-align: center;
-            transition: all 0.4s cubic-bezier(0.22,1,0.36,1);
-        }
-        .product-card:hover {
-            border-color: rgba(247,184,43,0.25);
-            box-shadow: 0 8px 40px rgba(247,184,43,0.06);
-            transform: translateY(-4px);
-        }
-        .product-card img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-            border-radius: 14px;
-            background: rgba(0,0,0,0.3);
-        }
-        .product-card .no-image { font-size: 4rem; display: block; padding: 30px 0; }
-        .product-card .category { color: rgba(247,184,43,0.5); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; margin-top: 8px; }
-        .product-card h3 { color: #fde3a0; font-size: 1.1rem; margin: 6px 0 4px; }
-        .product-card .desc { color: rgba(160,144,112,0.6); font-size: 0.85rem; margin: 6px 0 10px; min-height: 40px; }
-        .product-card .price { color: #f7b82b; font-size: 1.4rem; font-weight: 700; }
-        .product-card .price span { font-size: 0.8rem; color: rgba(160,144,112,0.5); font-weight: 400; }
-        .product-card .stock { color: rgba(160,144,112,0.4); font-size: 0.75rem; margin: 4px 0 14px; }
-
-        .auth-form {
-            max-width: 420px;
-            margin: 40px auto;
-            background: rgba(255,255,255,0.03);
-            padding: 40px 36px;
-            border-radius: 28px;
-            border: 1px solid rgba(247,184,43,0.08);
-        }
-        .auth-form h2 { color: #f7b82b; text-align: center; margin-bottom: 28px; font-weight: 700; }
-        .auth-form input {
-            width: 100%;
-            padding: 12px 18px;
-            margin-bottom: 14px;
-            border-radius: 30px;
-            border: 1px solid rgba(247,184,43,0.1);
-            background: rgba(0,0,0,0.3);
-            color: #fde3a0;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-        }
-        .auth-form input:focus {
-            outline: none;
-            border-color: rgba(247,184,43,0.3);
-            box-shadow: 0 0 30px rgba(247,184,43,0.05);
-            transform: scale(1.01);
-        }
-        .auth-form .btn { width: 100%; margin-top: 8px; }
-
         @media (max-width: 600px) {
             .timer-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
             .timer-number { font-size: 2rem; }
@@ -480,7 +401,6 @@
             .falling-item { font-size: 1.2rem; }
             .header { flex-direction: column; align-items: stretch; }
             .user-panel { flex-wrap: wrap; justify-content: center; }
-            .products-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
         }
     </style>
 </head>
@@ -522,16 +442,6 @@
         <div class="timer-message">
             🐝 <span>Скоро откроем!</span> Следите за обновлениями
         </div>
-        
-        <!-- ===== КНОПКА ВХОДА ===== -->
-        <div class="admin-login-btn">
-            <a href="/login" class="btn btn-gold">
-                🔑 Вход для администратора
-            </a>
-            <p style="color:rgba(160,144,112,0.3); font-size:0.7rem; margin-top:8px;">
-                Только для владельца сайта
-            </p>
-        </div>
     </div>
 </div>
 
@@ -560,41 +470,6 @@
         </div>
     </header>
 
-    <!-- Рекламный слайдер -->
-    <div class="slider-container" id="slider">
-        <div class="slider-track" id="sliderTrack">
-            {% for ad in ads %}
-            <div class="slider-slide">
-                {% if ad.image %}
-                    <img src="{{ url_for('uploaded_file', filename=ad.image) }}" alt="{{ ad.title }}">
-                {% endif %}
-                <h3>{{ ad.title }}</h3>
-                <p>{{ ad.text }}</p>
-                {% if ad.link %}
-                    <a href="{{ ad.link }}" class="btn btn-gold" style="margin-top:10px;">Подробнее →</a>
-                {% endif %}
-            </div>
-            {% endfor %}
-            {% if not ads %}
-            <div class="slider-slide">
-                <h3>🍯 Добро пожаловать в Медовик!</h3>
-                <p>Здесь вы найдёте лучшие товары за Мед коины</p>
-            </div>
-            <div class="slider-slide">
-                <h3>🎉 Скидки до 50%</h3>
-                <p>Только сегодня на все товары!</p>
-            </div>
-            <div class="slider-slide">
-                <h3>🚀 Новинки каждую неделю</h3>
-                <p>Следите за обновлениями!</p>
-            </div>
-            {% endif %}
-        </div>
-        <button class="slider-btn prev" onclick="prevSlide()">‹</button>
-        <button class="slider-btn next" onclick="nextSlide()">›</button>
-        <div class="slider-dots" id="sliderDots"></div>
-    </div>
-
     <div class="nav-links">
         <a href="{{ url_for('index') }}" {% if not category %}class="active"{% endif %}>🏠 Все</a>
         <a href="{{ url_for('category', category='инструменты') }}" {% if category == 'инструменты' %}class="active"{% endif %}>🔧 Инструменты</a>
@@ -603,10 +478,14 @@
         <a href="{{ url_for('category', category='разное') }}" {% if category == 'разное' %}class="active"{% endif %}>📦 Разное</a>
     </div>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% for category, message in messages %}
-            <div class="flash {{ category }}">{{ message }}</div>
-        {% endfor %}
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash">
+                {% for message in messages %}
+                    <div>{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
     {% endwith %}
 
     {% block content %}{% endblock %}
@@ -633,12 +512,6 @@ function createFallingItems() {
     }
 }
 
-// ===== ПРОВЕРКА АДМИНА =====
-function checkAdmin() {
-    const isAdmin = {{ 'true' if session.role == 'admin' else 'false' }};
-    return isAdmin;
-}
-
 // ===== ТАЙМЕР =====
 function startTimer() {
     const targetDate = new Date('2026-09-12T17:00:00').getTime();
@@ -657,7 +530,10 @@ function startTimer() {
         const now = new Date().getTime();
         let diff = targetDate - now;
         
-        if (diff <= 0 || checkAdmin()) {
+        // Проверяем, админ ли пользователь (передаётся из Flask)
+        const isAdmin = {{ 'true' if session.role == 'admin' else 'false' }};
+        
+        if (diff <= 0 || isAdmin) {
             overlay.classList.add('hidden');
             setTimeout(() => {
                 overlay.style.display = 'none';
@@ -686,51 +562,6 @@ function startTimer() {
     setInterval(updateTimer, 1000);
 }
 
-// ===== СЛАЙДЕР =====
-let currentSlide = 0;
-const track = document.getElementById('sliderTrack');
-const slides = track ? track.children : [];
-const dotsContainer = document.getElementById('sliderDots');
-
-function updateSlider() {
-    if (!track) return;
-    track.style.transform = `translateX(-${currentSlide * 100}%)`;
-    if (dotsContainer) {
-        const dots = dotsContainer.querySelectorAll('.slider-dot');
-        dots.forEach((dot, i) => {
-            dot.classList.toggle('active', i === currentSlide);
-        });
-    }
-}
-
-function nextSlide() {
-    if (slides.length === 0) return;
-    currentSlide = (currentSlide + 1) % slides.length;
-    updateSlider();
-}
-
-function prevSlide() {
-    if (slides.length === 0) return;
-    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-    updateSlider();
-}
-
-function goToSlide(index) {
-    currentSlide = index;
-    updateSlider();
-}
-
-if (dotsContainer && slides.length > 0) {
-    for (let i = 0; i < slides.length; i++) {
-        const dot = document.createElement('button');
-        dot.className = 'slider-dot' + (i === 0 ? ' active' : '');
-        dot.onclick = () => goToSlide(i);
-        dotsContainer.appendChild(dot);
-    }
-}
-
-setInterval(nextSlide, 5000);
-
 // ===== ТЕМА =====
 function toggleTheme() {
     const html = document.documentElement;
@@ -748,7 +579,9 @@ if (savedTheme) {
 document.addEventListener('DOMContentLoaded', function() {
     createFallingItems();
     
-    if (!checkAdmin()) {
+    const isAdmin = {{ 'true' if session.role == 'admin' else 'false' }};
+    
+    if (!isAdmin) {
         document.getElementById('timerOverlay').style.display = 'flex';
         document.getElementById('mainApp').style.display = 'none';
         document.body.style.overflow = 'hidden';
