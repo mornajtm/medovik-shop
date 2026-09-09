@@ -10,7 +10,7 @@
 <div class="app">
     <header class="header">
         <div class="logo">
-            <h1>Медовик</h1>
+            <h1>🍯 Медовик</h1>
             <span>АРЫ • АЛМАЗНАЯ РУДА</span>
         </div>
         <div class="user-panel">
@@ -30,12 +30,16 @@
         </div>
     </header>
 
+    <!-- ===== НАВИГАЦИЯ С НОВЫМИ КАТЕГОРИЯМИ ===== -->
     <div class="nav-links">
         <a href="{{ url_for('index') }}" {% if not category %}class="active"{% endif %}>🏠 Все</a>
         <a href="{{ url_for('category', category='мёд') }}" {% if category == 'мёд' %}class="active"{% endif %}>🍯 Мёд</a>
         <a href="{{ url_for('category', category='прополис') }}" {% if category == 'прополис' %}class="active"{% endif %}>🐝 Прополис</a>
         <a href="{{ url_for('category', category='воск') }}" {% if category == 'воск' %}class="active"{% endif %}>🕯️ Воск</a>
-        <a href="{{ url_for('category', category='другое') }}" {% if category == 'другое' %}class="active"{% endif %}>📦 Другое</a>
+        <a href="{{ url_for('category', category='инструменты') }}" {% if category == 'инструменты' %}class="active"{% endif %}>🔧 Инструменты</a>
+        <a href="{{ url_for('category', category='блоки') }}" {% if category == 'блоки' %}class="active"{% endif %}>🧱 Блоки</a>
+        <a href="{{ url_for('category', category='еда') }}" {% if category == 'еда' %}class="active"{% endif %}>🍔 Еда</a>
+        <a href="{{ url_for('category', category='разное') }}" {% if category == 'разное' %}class="active"{% endif %}>📦 Разное</a>
     </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -47,59 +51,4 @@
     {% block content %}{% endblock %}
 </div>
 </body>
-<!-- Добавь перед закрывающим тегом body в base.html -->
-<script>
-// Анимация при загрузке страницы - счётчики в админке
-document.addEventListener('DOMContentLoaded', function() {
-    // Плавное появление элементов
-    const cards = document.querySelectorAll('.stat-card .num');
-    cards.forEach(card => {
-        const text = card.textContent;
-        if (!isNaN(parseInt(text))) {
-            const target = parseInt(text);
-            let current = 0;
-            const increment = Math.ceil(target / 30);
-            const timer = setInterval(() => {
-                current += increment;
-                if (current >= target) {
-                    card.textContent = target;
-                    clearInterval(timer);
-                } else {
-                    card.textContent = current;
-                }
-            }, 30);
-        }
-    });
-
-    // Парящие звёзды (декоративные)
-    const app = document.querySelector('.app');
-    for (let i = 0; i < 15; i++) {
-        const star = document.createElement('div');
-        star.style.cssText = `
-            position: fixed;
-            pointer-events: none;
-            color: rgba(247, 184, 43, ${0.1 + Math.random() * 0.2});
-            font-size: ${4 + Math.random() * 8}px;
-            top: ${Math.random() * 100}vh;
-            left: ${Math.random() * 100}vw;
-            animation: twinkle ${2 + Math.random() * 4}s ease-in-out infinite;
-            animation-delay: ${Math.random() * 3}s;
-            user-select: none;
-            z-index: -1;
-        `;
-        star.textContent = ['✦', '✧', '·'][Math.floor(Math.random() * 3)];
-        document.body.appendChild(star);
-    }
-});
-
-// Эффект при наведении на карточки товара
-document.querySelectorAll('.product-card .btn-gold').forEach(btn => {
-    btn.addEventListener('mouseenter', function() {
-        this.style.animation = 'pulse 0.6s ease';
-    });
-    btn.addEventListener('animationend', function() {
-        this.style.animation = '';
-    });
-});
-</script>
 </html>
