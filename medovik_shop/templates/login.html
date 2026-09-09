@@ -5,11 +5,21 @@
     <h2>🍯 Вход в улей</h2>
     <form method="POST">
         <input type="text" name="username" placeholder="Имя пользователя" required>
-        <input type="password" name="password" placeholder="Пароль" required>
+        <div style="position:relative;">
+            <input type="password" name="password" placeholder="Пароль" required id="loginPassword">
+            <span onclick="togglePassword('loginPassword')" style="position:absolute; right:15px; top:12px; cursor:pointer; color:#a09070;">👁️</span>
+        </div>
         <button type="submit" class="btn btn-gold">Войти</button>
     </form>
     <p style="color:#a09070; text-align:center; margin-top:16px;">
         Нет аккаунта? <a href="{{ url_for('register') }}" style="color:#f7b82b;">Зарегистрироваться</a>
     </p>
 </div>
+
+<script>
+function togglePassword(id) {
+    const input = document.getElementById(id);
+    input.type = input.type === 'password' ? 'text' : 'password';
+}
+</script>
 {% endblock %}
