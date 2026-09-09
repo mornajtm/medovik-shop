@@ -1,36 +1,39 @@
 from flask_frozen import Freezer
 from app import app
+import os
 
 freezer = Freezer(app)
 
-# Список всех страниц, которые нужно сгенерировать
 @freezer.register_generator
 def generate_pages():
-    # Главная страница
+    # Главная
     yield '/'
     
     # Категории
     for category in ['мёд', 'прополис', 'воск', 'другое']:
         yield f'/category/{category}'
     
-    # Все товары из базы
+    # Товары (из базы)
     from database import Database
     db = Database()
     for product in db.get_all_products():
         yield f'/product/{product["id"]}'
     
-    # Другие страницы
+    # Статические страницы
     yield '/login'
     yield '/register'
     yield '/cart'
     yield '/checkout'
     yield '/profile'
-    
-    # Админка
     yield '/admin'
     yield '/admin/products'
     yield '/admin/orders'
     yield '/admin/users'
 
 if __name__ == '__main__':
+    # Создаём папку build, если её нет
+    if not os.path.exists('build'):
+        os.makedirs('build')
+    
+    # Замораживаем сайт в папку build
     freezer.freeze()
