@@ -14,6 +14,16 @@
             <div>
                 <p style="color:#fde3a0;">🍯 Баланс: <strong style="color:#f7b82b; font-size:2rem;">{{ user.balance }}</strong></p>
                 <p style="color:rgba(160,144,112,0.5); font-size:0.8rem;">Зарегистрирован: {{ user.created_at[:16] if user.created_at else '—' }}</p>
+                <p style="color:rgba(160,144,112,0.5); font-size:0.8rem;">
+                    Роль: 
+                    {% if user.role == 'admin' %}
+                        <span style="color:#f7b82b;">👑 Администратор</span>
+                    {% elif user.role == 'seller' %}
+                        <span style="color:#55ff88;">🛍️ Продавец</span>
+                    {% else %}
+                        <span style="color:#888;">👤 Пользователь</span>
+                    {% endif %}
+                </p>
             </div>
         </div>
     </div>
@@ -21,12 +31,21 @@
     <div style="background:rgba(255,255,255,0.03); border-radius:20px; padding:24px; border:1px solid rgba(247,184,43,0.08);">
         <h4 style="color:#fde3a0; margin-bottom:12px;">🔗 Социальные сети</h4>
         <form method="POST" action="{{ url_for('update_profile') }}">
+            <label style="color:#a09070; font-size:0.8rem;">Telegram (укажите @username)</label>
             <input type="text" name="telegram" placeholder="@telegram" value="{{ user.telegram or '' }}" style="width:100%; padding:10px 16px; border-radius:30px; border:1px solid rgba(247,184,43,0.1); background:rgba(0,0,0,0.3); color:#fde3a0; margin-bottom:10px;">
+            
+            <label style="color:#a09070; font-size:0.8rem;">Discord</label>
             <input type="text" name="discord" placeholder="discord#0000" value="{{ user.discord or '' }}" style="width:100%; padding:10px 16px; border-radius:30px; border:1px solid rgba(247,184,43,0.1); background:rgba(0,0,0,0.3); color:#fde3a0; margin-bottom:10px;">
+            
             <button type="submit" class="btn btn-gold" style="width:100%;">Сохранить</button>
         </form>
+        
         {% if user.telegram %}
             <p style="color:#55ff88; font-size:0.8rem; margin-top:8px;">✅ Telegram привязан: {{ user.telegram }}</p>
+            <p style="color:rgba(160,144,112,0.5); font-size:0.7rem;">💡 Вы будете получать уведомления о заказах в Telegram</p>
+        {% else %}
+            <p style="color:#ffbb33; font-size:0.8rem; margin-top:8px;">⚠️ Telegram не привязан</p>
+            <p style="color:rgba(160,144,112,0.5); font-size:0.7rem;">💡 Укажите Telegram, чтобы получать уведомления о заказах</p>
         {% endif %}
     </div>
 </div>
@@ -64,4 +83,11 @@
     <tr><td colspan="6" style="text-align:center; color:rgba(160,144,112,0.4);">Заказов пока нет</td></tr>
     {% endfor %}
 </table>
+
+{% if user.role == 'seller' or user.role == 'admin' %}
+<div style="margin-top:20px; padding:16px; background:rgba(247,184,43,0.05); border-radius:16px; border:1px solid rgba(247,184,43,0.1);">
+    <h4 style="color:#f7b82b;">🛍️ Панель продавца</h4>
+    <p style="color:#a09070; font-size:0.9rem;">Вы можете управлять своими товарами через <a href="{{ url_for('admin_products') }}" style="color:#f7b82b;">админ-панель</a></p>
+</div>
+{% endif %}
 {% endblock %}
