@@ -37,127 +37,14 @@
             box-shadow: 0 25px 60px var(--shadow); 
             position: relative;
             z-index: 1;
-            display: none;
+            display: block;
             max-width: 1400px;
             margin: 20px auto;
             padding: 28px 36px;
             border-radius: 32px;
         }
-        
-        /* ===== ТАЙМЕР ===== */
-        .timer-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            transition: opacity 1s ease;
-        }
-        .timer-overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-        .timer-container {
-            text-align: center;
-            padding: 40px;
-            border-radius: 30px;
-            background: var(--bg-card);
-            border: 2px solid rgba(247,184,43,0.2);
-            box-shadow: 0 0 60px rgba(247,184,43,0.1);
-            max-width: 600px;
-            width: 90%;
-            position: relative;
-            z-index: 10;
-        }
-        .timer-logo {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 20px;
-            border: 3px solid #f7b82b;
-            box-shadow: 0 0 40px rgba(247,184,43,0.2);
-            animation: floatLogo 3s ease-in-out infinite;
-        }
-        .timer-title {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #f7b82b;
-            margin-bottom: 10px;
-        }
-        .timer-subtitle {
-            color: var(--text-secondary);
-            font-size: 1rem;
-            margin-bottom: 30px;
-        }
-        .timer-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin: 20px 0;
-        }
-        .timer-block {
-            background: rgba(247,184,43,0.05);
-            border-radius: 16px;
-            padding: 16px 8px;
-            border: 1px solid rgba(247,184,43,0.1);
-        }
-        .timer-number {
-            font-size: 3rem;
-            font-weight: 900;
-            color: #f7b82b;
-            font-variant-numeric: tabular-nums;
-            display: block;
-            line-height: 1;
-            animation: countPulse 1s ease infinite;
-        }
-        .timer-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--text-secondary);
-            margin-top: 6px;
-            display: block;
-        }
-        .timer-progress {
-            width: 100%;
-            height: 4px;
-            background: rgba(247,184,43,0.1);
-            border-radius: 4px;
-            margin-top: 20px;
-            overflow: hidden;
-        }
-        .timer-progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #f7b82b, #f5a623);
-            border-radius: 4px;
-            transition: width 0.5s ease;
-            width: 0%;
-        }
-        .timer-message {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-top: 16px;
-        }
-        .timer-message span {
-            color: #f7b82b;
-            font-weight: 600;
-        }
 
-        @keyframes floatLogo {
-            0%, 100% { transform: translateY(0px) scale(1); }
-            50% { transform: translateY(-10px) scale(1.02); }
-        }
-        @keyframes countPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.03); }
-        }
+        /* ===== ПАДАЮЩИЕ ПРЕДМЕТЫ ===== */
         @keyframes fall {
             0% { transform: translateY(-100px) rotate(0deg) scale(0.3); opacity: 0; }
             10% { opacity: 0.8; }
@@ -390,11 +277,18 @@
             border: 1px solid rgba(247,184,43,0.15);
         }
 
+        .flash {
+            padding: 12px 22px;
+            border-radius: 30px;
+            margin-bottom: 16px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            background: rgba(50,255,100,0.08);
+            color: #55ff88;
+            border: 1px solid rgba(50,255,100,0.12);
+        }
+
         @media (max-width: 600px) {
-            .timer-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
-            .timer-number { font-size: 2rem; }
-            .timer-container { padding: 20px; }
-            .timer-logo { width: 80px; height: 80px; }
             .app { padding: 16px; border-radius: 20px; margin: 10px; }
             .slider-slide { padding: 16px; }
             .slider-slide h3 { font-size: 1.2rem; }
@@ -408,42 +302,6 @@
 
 <!-- ===== ПАДАЮЩИЕ ПРЕДМЕТЫ ===== -->
 <div class="falling-items" id="fallingItems"></div>
-
-<!-- ===== ТАЙМЕР ===== -->
-<div class="timer-overlay" id="timerOverlay">
-    <div class="timer-container">
-        <img src="{{ url_for('static', filename='logo.png') }}" alt="Медовик" class="timer-logo" id="timerLogo">
-        <div class="timer-title">🍯 Медовик</div>
-        <div class="timer-subtitle">Сайт откроется через:</div>
-        
-        <div class="timer-grid">
-            <div class="timer-block">
-                <span class="timer-number" id="days">00</span>
-                <span class="timer-label">Дней</span>
-            </div>
-            <div class="timer-block">
-                <span class="timer-number" id="hours">00</span>
-                <span class="timer-label">Часов</span>
-            </div>
-            <div class="timer-block">
-                <span class="timer-number" id="minutes">00</span>
-                <span class="timer-label">Минут</span>
-            </div>
-            <div class="timer-block">
-                <span class="timer-number" id="seconds">00</span>
-                <span class="timer-label">Секунд</span>
-            </div>
-        </div>
-        
-        <div class="timer-progress">
-            <div class="timer-progress-bar" id="progressBar"></div>
-        </div>
-        
-        <div class="timer-message">
-            🐝 <span>Скоро откроем!</span> Следите за обновлениями
-        </div>
-    </div>
-</div>
 
 <!-- ===== ОСНОВНОЙ САЙТ ===== -->
 <div class="app" id="mainApp">
@@ -512,56 +370,6 @@ function createFallingItems() {
     }
 }
 
-// ===== ТАЙМЕР =====
-function startTimer() {
-    const targetDate = new Date('2026-09-12T17:00:00').getTime();
-    const overlay = document.getElementById('timerOverlay');
-    const mainApp = document.getElementById('mainApp');
-    const daysEl = document.getElementById('days');
-    const hoursEl = document.getElementById('hours');
-    const minutesEl = document.getElementById('minutes');
-    const secondsEl = document.getElementById('seconds');
-    const progressBar = document.getElementById('progressBar');
-    
-    const startDate = new Date('2026-09-01T00:00:00').getTime();
-    const totalDuration = targetDate - startDate;
-    
-    function updateTimer() {
-        const now = new Date().getTime();
-        let diff = targetDate - now;
-        
-        // Проверяем, админ ли пользователь (передаётся из Flask)
-        const isAdmin = {{ 'true' if session.role == 'admin' else 'false' }};
-        
-        if (diff <= 0 || isAdmin) {
-            overlay.classList.add('hidden');
-            setTimeout(() => {
-                overlay.style.display = 'none';
-                mainApp.style.display = 'block';
-                document.body.style.overflow = 'auto';
-            }, 500);
-            return;
-        }
-        
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-        
-        daysEl.textContent = String(days).padStart(2, '0');
-        hoursEl.textContent = String(hours).padStart(2, '0');
-        minutesEl.textContent = String(minutes).padStart(2, '0');
-        secondsEl.textContent = String(seconds).padStart(2, '0');
-        
-        const elapsed = now - startDate;
-        const progress = Math.min((elapsed / totalDuration) * 100, 100);
-        progressBar.style.width = progress + '%';
-    }
-    
-    updateTimer();
-    setInterval(updateTimer, 1000);
-}
-
 // ===== ТЕМА =====
 function toggleTheme() {
     const html = document.documentElement;
@@ -578,19 +386,6 @@ if (savedTheme) {
 // ===== ЗАПУСК =====
 document.addEventListener('DOMContentLoaded', function() {
     createFallingItems();
-    
-    const isAdmin = {{ 'true' if session.role == 'admin' else 'false' }};
-    
-    if (!isAdmin) {
-        document.getElementById('timerOverlay').style.display = 'flex';
-        document.getElementById('mainApp').style.display = 'none';
-        document.body.style.overflow = 'hidden';
-        startTimer();
-    } else {
-        document.getElementById('timerOverlay').style.display = 'none';
-        document.getElementById('mainApp').style.display = 'block';
-        document.body.style.overflow = 'auto';
-    }
 });
 </script>
 </body>
