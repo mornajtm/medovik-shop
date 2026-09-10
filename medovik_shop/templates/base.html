@@ -44,33 +44,6 @@
             border-radius: 32px;
         }
 
-        /* ===== ПАДАЮЩИЕ ПРЕДМЕТЫ ===== */
-        @keyframes fall {
-            0% { transform: translateY(-100px) rotate(0deg) scale(0.3); opacity: 0; }
-            10% { opacity: 0.8; }
-            90% { opacity: 0.8; }
-            100% { transform: translateY(110vh) rotate(720deg) scale(1.2); opacity: 0; }
-        }
-
-        .falling-items {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-            overflow: hidden;
-        }
-        .falling-item {
-            position: absolute;
-            font-size: 2rem;
-            animation: fall linear infinite;
-            opacity: 0.5;
-            filter: drop-shadow(0 0 10px rgba(247,184,43,0.2));
-            will-change: transform;
-        }
-
         .btn { 
             padding: 8px 22px; 
             border: none; 
@@ -292,16 +265,12 @@
             .app { padding: 16px; border-radius: 20px; margin: 10px; }
             .slider-slide { padding: 16px; }
             .slider-slide h3 { font-size: 1.2rem; }
-            .falling-item { font-size: 1.2rem; }
             .header { flex-direction: column; align-items: stretch; }
             .user-panel { flex-wrap: wrap; justify-content: center; }
         }
     </style>
 </head>
 <body>
-
-<!-- ===== ПАДАЮЩИЕ ПРЕДМЕТЫ ===== -->
-<div class="falling-items" id="fallingItems"></div>
 
 <!-- ===== ОСНОВНОЙ САЙТ ===== -->
 <div class="app" id="mainApp">
@@ -350,26 +319,6 @@
 </div>
 
 <script>
-// ===== ПАДАЮЩИЕ ПРЕДМЕТЫ =====
-function createFallingItems() {
-    const container = document.getElementById('fallingItems');
-    if (!container) return;
-    container.innerHTML = '';
-    const items = ['🍯', '🐝', '🌻', '🍄', '🍃', '✨', '⭐', '🍂', '🌸', '🌿', '🍀', '🌺', '🪷', '🍁', '🌾'];
-    const count = 25;
-    for (let i = 0; i < count; i++) {
-        const el = document.createElement('div');
-        el.className = 'falling-item';
-        el.textContent = items[Math.floor(Math.random() * items.length)];
-        el.style.left = Math.random() * 100 + '%';
-        el.style.fontSize = (1.2 + Math.random() * 2.5) + 'rem';
-        el.style.animationDuration = (10 + Math.random() * 15) + 's';
-        el.style.animationDelay = (Math.random() * 20) + 's';
-        el.style.opacity = 0.15 + Math.random() * 0.4;
-        container.appendChild(el);
-    }
-}
-
 // ===== ТЕМА =====
 function toggleTheme() {
     const html = document.documentElement;
@@ -382,11 +331,6 @@ const savedTheme = localStorage.getItem('theme');
 if (savedTheme) {
     document.documentElement.setAttribute('data-theme', savedTheme);
 }
-
-// ===== ЗАПУСК =====
-document.addEventListener('DOMContentLoaded', function() {
-    createFallingItems();
-});
 </script>
 </body>
 </html>
