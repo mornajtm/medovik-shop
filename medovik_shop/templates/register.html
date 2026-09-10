@@ -3,7 +3,7 @@
 {% block content %}
 <div class="auth-form">
     <h2>🐝 Регистрация</h2>
-    <form method="POST">
+    <form method="POST" action="{{ url_for('register') }}">
         <input type="text" name="username" placeholder="Имя пользователя" required>
         <div style="position:relative;">
             <input type="password" name="password" placeholder="Пароль" required id="registerPassword">
