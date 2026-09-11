@@ -140,6 +140,60 @@ def profile():
     ads = db.get_all_ads()
     return render_template('profile.html', user=user, orders=orders, ads=ads)
 
+@app.route('/profile/upload_avatar', methods=['POST'])
+@login_required
+def upload_avatar():
+    file = request.files.get('avatar')
+    if not file or not allowed_file(file.filename):
+        flash('Выберите изображение (png, jpg, jpeg, gif, webp)', 'danger')
+        return redirect(url_for('profile'))
+
+    user = db.get_user(session['user_id'])
+    filename = secure_filename(f"user_{user['id']}_{int(datetime.datetime.now().timestamp())}_{file.filename}")
+    avatar_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'avatars')
+    os.makedirs(avatar_dir, exist_ok=True)
+
+    # Удаляем старую загруженную вручную аватарку
+    if user.get('avatar') and 'avatars/user_' in user['avatar']:
+        old_path = os.path.join(app.config['UPLOAD_FOLDER'], user['avatar'].replace('uploads/', ''))
+        try:
+            os.remove(old_path)
+        except:
+            pass
+
+    filepath = os.path.join(avatar_dir, filename)
+    file.save(filepath)
+
+    # Обрезаем до квадрата и уменьшаем
+    try:
+        img = Image.open(filepath).convert('RGBA')
+        size = min(img.size)
+        left = (img.width - size) // 2
+        top = (img.height - size) // 2
+        img = img.crop((left, top, left + size, top + size))
+        img = img.resize((200, 200), Image.LANCZOS)
+        img.save(filepath, 'PNG')
+    except Exception as e:
+        print(f"Ошибка обработки аватарки: {e}")
+
+    db.update_user_avatar_by_id(user['id'], f'uploads/avatars/{filename}')
+    flash('Аватарка обновлена!', 'success')
+    return redirect(url_for('profile'))
+
+@app.route('/profile/delete_avatar', methods=['POST'])
+@login_required
+def delete_avatar():
+    user = db.get_user(session['user_id'])
+    if user.get('avatar') and 'avatars/user_' in user['avatar']:
+        old_path = os.path.join(app.config['UPLOAD_FOLDER'], user['avatar'].replace('uploads/', ''))
+        try:
+            os.remove(old_path)
+        except:
+            pass
+    db.update_user_avatar_by_id(user['id'], None)
+    flash('Аватарка удалена', 'info')
+    return redirect(url_for('profile'))
+
 @app.route('/cart')
 @login_required
 def cart():
