@@ -8,7 +8,7 @@
 
     <div class="row g-4">
         <div class="col-md-7">
-            <div style="background:linear-gradient(145deg,#2a2a2a,#1a1a1a);border:1px solid #ffc10733;border-radius:20px;padding:25px;">
+            <div class="card-dark" style="padding:25px;">
                 <h5 style="color:#ffc107;margin-bottom:20px;">Товары в заказе</h5>
 
                 {% if cart_items %}
@@ -43,14 +43,17 @@
         </div>
 
         <div class="col-md-5">
-            <div style="background:linear-gradient(145deg,#2a2a2a,#1a1a1a);border:1px solid #ffc10733;border-radius:20px;padding:25px;">
+            <div class="card-dark" style="padding:25px;">
                 <h5 style="color:#ffc107;margin-bottom:20px;">Данные доставки</h5>
 
                 <form method="POST" action="{{ url_for('checkout') }}">
                     <div class="mb-3">
                         <label style="color:#ccc;">Адрес доставки:</label>
-                        <input type="text" name="address" placeholder="Город, улица, дом, квартира" required
-                               class="form-control" style="background:#1a1a1a;border:1px solid #ffc10755;color:#fff;padding:10px;">
+                        <input type="text" name="address"
+                               placeholder="Оставьте пустым — самовывоз с ПВЗ"
+                               class="form-control"
+                               style="background:#1a1a1a;border:1px solid #ffc10755;color:#fff;padding:10px;">
+                        <small style="color:#888;">Необязательно. Если не заполнить — заказ будет ждать в ПВЗ «Клоповник»</small>
                     </div>
 
                     <div class="mb-3">
