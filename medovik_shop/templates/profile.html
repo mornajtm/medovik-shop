@@ -8,14 +8,19 @@
         <div class="col-md-4">
             <div class="card mb-4">
                 <div class="card-body text-center">
+
+                    {# ---- АВАТАРКА ---- #}
                     {% if user.avatar %}
-                        <img src="/{{ user.avatar }}" alt="Аватар" class="rounded-circle mb-3"
-                             style="width:120px;height:120px;object-fit:cover;border:3px solid #ffc107;">
+                        <img src="/{{ user.avatar }}?v={{ range(100000, 999999) | random }}"
+                             alt="Аватар"
+                             class="rounded-circle mb-3"
+                             style="width:120px;height:120px;object-fit:cover;border:3px solid #ffc107;"
+                             onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%22120%22 viewBox=%220 0 120 120%22><rect width=%22120%22 height=%22120%22 fill=%22%236c757d%22/><text x=%2260%22 y=%2278%22 font-size=%2260%22 text-anchor=%22middle%22 fill=%22white%22>👤</text></svg>';">
                     {% else %}
-                        <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center mb-3"
-                             style="width:120px;height:120px;border:3px solid #ffc107;">
-                            <span style="font-size:50px;">👤</span>
-                        </div>
+                        <img src="data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%22120%22 viewBox=%220 0 120 120%22><rect width=%22120%22 height=%22120%22 fill=%22%236c757d%22/><text x=%2260%22 y=%2278%22 font-size=%2260%22 text-anchor=%22middle%22 fill=%22white%22>👤</text></svg>"
+                             alt="Аватар"
+                             class="rounded-circle mb-3"
+                             style="width:120px;height:120px;object-fit:cover;border:3px solid #ffc107;">
                     {% endif %}
 
                     <h4>{{ user.username }}</h4>
