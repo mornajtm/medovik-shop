@@ -3,7 +3,6 @@
 {% block content %}
 <div class="container mt-4">
 
-    <!-- Хлебные крошки -->
     <nav style="color:#888;margin-bottom:20px;font-size:.9rem;">
         <a href="/" style="color:#ffc107;text-decoration:none;">🏠 Главная</a>
         <span class="mx-2">›</span>
@@ -13,9 +12,8 @@
     </nav>
 
     <div class="row g-4">
-        <!-- ФОТО -->
         <div class="col-md-5">
-            <div style="background:linear-gradient(145deg,#2a2a2a,#1a1a1a);border:1px solid #ffc10733;border-radius:20px;padding:20px;">
+            <div class="card-dark" style="padding:20px;">
                 {% if product.image %}
                     <img src="{{ url_for('uploaded_file', filename=product.image) }}"
                          style="width:100%;border-radius:14px;" alt="{{ product.name }}">
@@ -25,7 +23,6 @@
             </div>
         </div>
 
-        <!-- ИНФО -->
         <div class="col-md-7">
             <span style="background:#ffc10722;color:#ffc107;border:1px solid #ffc10755;padding:4px 12px;border-radius:20px;font-size:.8rem;">
                 {{ product.category }}
@@ -57,14 +54,13 @@
         </div>
     </div>
 
-    <!-- ПОХОЖИЕ -->
     {% if similar %}
     <h3 style="color:#ffc107;margin:50px 0 20px;">🔄 Похожие товары</h3>
     <div class="row g-4">
         {% for p in similar %}
         <div class="col-lg-3 col-md-4 col-sm-6">
             <a href="{{ url_for('product_page', product_id=p.id) }}" style="text-decoration:none;">
-                <div style="background:linear-gradient(145deg,#2a2a2a,#1a1a1a);border:1px solid #ffc10733;border-radius:16px;padding:15px;">
+                <div class="card-dark" style="padding:15px;">
                     {% if p.image %}
                         <img src="{{ url_for('uploaded_file', filename=p.image) }}" style="width:100%;height:150px;object-fit:cover;border-radius:12px;" alt="{{ p.name }}">
                     {% else %}
