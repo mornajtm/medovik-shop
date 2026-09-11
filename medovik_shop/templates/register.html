@@ -1,19 +1,34 @@
 {% extends 'base.html' %}
 
+{% block title %}Регистрация{% endblock %}
+
 {% block content %}
-<div class="auth-form">
-    <h2>🐝 Регистрация</h2>
-    <form method="POST" action="{{ url_for('register') }}">
-        <input type="text" name="username" placeholder="Имя пользователя" required>
-        <div style="position:relative;">
-            <input type="password" name="password" placeholder="Пароль" required id="registerPassword">
-            <span onclick="togglePassword('registerPassword')" style="position:absolute; right:15px; top:12px; cursor:pointer; color:#a09070;">👁️</span>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5 col-lg-4">
+            <div style="background:linear-gradient(145deg,#2a2a2a,#1a1a1a);border:1px solid #ffc10733;border-radius:20px;padding:35px 30px;box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+                <h2 style="color:#ffc107;text-align:center;margin-bottom:25px;">🐝 Регистрация</h2>
+
+                <form method="POST" action="{{ url_for('register') }}">
+                    <div class="mb-3">
+                        <input type="text" name="username" placeholder="Имя пользователя" required
+                               class="form-control" style="background:#1a1a1a;border:1px solid #ffc10755;color:#fff;padding:12px;">
+                    </div>
+                    <div class="mb-3" style="position:relative;">
+                        <input type="password" name="password" placeholder="Пароль" required id="registerPassword"
+                               class="form-control" style="background:#1a1a1a;border:1px solid #ffc10755;color:#fff;padding:12px;">
+                        <span onclick="togglePassword('registerPassword')"
+                              style="position:absolute;right:15px;top:12px;cursor:pointer;color:#ffc107;">👁️</span>
+                    </div>
+                    <button type="submit" class="btn btn-warning w-100" style="padding:12px;">Создать аккаунт</button>
+                </form>
+
+                <p style="color:#888;text-align:center;margin-top:20px;margin-bottom:0;">
+                    Уже есть? <a href="{{ url_for('login') }}" style="color:#ffc107;">Войти</a>
+                </p>
+            </div>
         </div>
-        <button type="submit" class="btn btn-gold">Создать аккаунт</button>
-    </form>
-    <p style="color:#a09070; text-align:center; margin-top:16px;">
-        Уже есть? <a href="{{ url_for('login') }}" style="color:#f7b82b;">Войти</a>
-    </p>
+    </div>
 </div>
 
 <script>
