@@ -1,54 +1,49 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2 style="color:#f7b82b;">📋 Все заказы</h2>
+<div class="container mt-4">
+    <h2 style="color:#ffc107;margin-bottom:25px;">📋 Все заказы</h2>
 
-<table class="admin-table">
-    <tr>
-        <th>#</th>
-        <th>Пользователь</th>
-        <th>Сумма</th>
-        <th>Статус</th>
-        <th>Адрес</th>
-        <th>Дата</th>
-        <th>Действия</th>
-    </tr>
-    {% for o in orders %}
-    <tr>
-        <td>#{{ o.id }}</td>
-        <td>{{ o.username }}</td>
-        <td>{{ o.total }} 🍯</td>
-        <td>
-            {% if o.status == 'collecting' %}
-                <span style="color:#ffbb33;">🔵 Собираем</span>
-            {% elif o.status == 'delivering' %}
-                <span style="color:#ffbb33;">🟡 Доставляем</span>
-            {% elif o.status == 'delivered' %}
-                <span style="color:#55ff88;">✅ Доставлен</span>
-            {% else %}
-                <span style="color:#888;">{{ o.status }}</span>
-            {% endif %}
-        </td>
-        <td style="font-size:0.8rem;">{{ o.address[:30] }}{% if o.address|length > 30 %}...{% endif %}</td>
-        <td>{{ o.created_at[:16] if o.created_at else '—' }}</td>
-        <td>
-            {% if o.status != 'delivered' %}
-                <div style="display:flex; flex-wrap:wrap; gap:4px;">
-                    <a href="{{ url_for('admin_update_order_status', order_id=o.id, status='collecting') }}" class="btn btn-dark btn-sm">🔵 Собираем</a>
-                    <a href="{{ url_for('admin_update_order_status', order_id=o.id, status='delivering') }}" class="btn btn-dark btn-sm">🟡 Доставляем</a>
-                    <a href="{{ url_for('admin_update_order_status', order_id=o.id, status='delivered') }}" class="btn btn-gold btn-sm">✅ Доставлен</a>
-                </div>
-            {% else %}
-                <span style="color:#55ff88;">✔️ Завершён</span>
-            {% endif %}
-        </td>
-    </tr>
-    {% else %}
-    <tr>
-        <td colspan="7" style="text-align:center; color:rgba(160,144,112,0.4); padding:30px 0;">
-            📭 Заказов нет
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+    <div style="background:linear-gradient(145deg,#2a2a2a,#1a1a1a);border:1px solid #ffc10733;border-radius:20px;padding:20px;overflow-x:auto;">
+        <table class="table" style="color:#ddd;">
+            <thead>
+                <tr style="border-bottom:1px solid #ffc10755;">
+                    <th style="color:#ffc107;">#</th>
+                    <th style="color:#ffc107;">Пользователь</th>
+                    <th style="color:#ffc107;">Сумма</th>
+                    <th style="color:#ffc107;">Статус</th>
+                    <th style="color:#ffc107;">Адрес</th>
+                    <th style="color:#ffc107;">Дата</th>
+                    <th style="color:#ffc107;">Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for o in orders %}
+                <tr style="border-bottom:1px solid #ffc10722;">
+                    <td>#{{ o.id }}</td>
+                    <td>{{ o.username }}</td>
+                    <td style="color:#ffc107;">{{ o.total }} 🍯</td>
+                    <td>
+                        {% if o.status == 'collecting' %}<span class="badge bg-warning text-dark">📦 Собирается</span>
+                        {% elif o.status == 'delivering' %}<span class="badge bg-info text-dark">🚚 В пути</span>
+                        {% elif o.status == 'delivered' %}<span class="badge bg-success">✅ Доставлен</span>
+                        {% else %}<span class="badge bg-secondary">{{ o.status }}</span>{% endif %}
+                    </td>
+                    <td style="font-size:.85rem;">{{ o.address[:30] }}{% if o.address|length > 30 %}...{% endif %}</td>
+                    <td style="font-size:.85rem;">{{ o.created_at[:16] if o.created_at else '—' }}</td>
+                    <td>
+                        <div class="d-flex gap-1 flex-wrap">
+                            <a href="{{ url_for('admin_update_order_status', order_id=o.id, status='collecting') }}" class="btn btn-outline-warning btn-sm">📦</a>
+                            <a href="{{ url_for('admin_update_order_status', order_id=o.id, status='delivering') }}" class="btn btn-outline-info btn-sm">🚚</a>
+                            <a href="{{ url_for('admin_update_order_status', order_id=o.id, status='delivered') }}" class="btn btn-outline-success btn-sm">✅</a>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7" class="text-center py-4" style="color:#888;">📭 Заказов нет</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}
