@@ -4,24 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Медовик{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        * { transition: background-color .35s ease, color .35s ease, border-color .35s ease; }
+
         body {
             background: #141414;
             color: #e0e0e0;
             font-family: 'Segoe UI', Tahoma, sans-serif;
-            transition: background .3s, color .3s;
+            transition: background .35s ease, color .35s ease;
         }
         .navbar-medovik {
             background: linear-gradient(90deg, #1a1a1a, #2a2a2a);
             border-bottom: 2px solid #ffc107;
             box-shadow: 0 2px 15px rgba(255,193,7,0.15);
-            transition: background .3s;
+            transition: background .35s ease, border-color .35s ease;
         }
         .navbar-medovik .navbar-brand {
             color: #ffc107 !important;
             font-weight: 700;
             font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .navbar-medovik .navbar-brand img {
+            height: 40px;
+            width: 40px;
+            object-fit: contain;
         }
         .navbar-medovik .nav-link {
             color: #ccc !important;
@@ -44,6 +55,35 @@
         }
         .btn-outline-warning { border-color: #ffc107; color: #ffc107; }
         .btn-outline-warning:hover { background: #ffc107; color: #1a1a1a; }
+
+        #themeToggle {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid #ffc107;
+            background: transparent;
+            color: #ffc107;
+            font-size: 1.1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all .3s ease;
+        }
+        #themeToggle:hover {
+            background: #ffc107;
+            color: #1a1a1a;
+            transform: rotate(20deg);
+        }
+        body.light-theme #themeToggle {
+            border-color: #ff9800;
+            color: #ff9800;
+        }
+        body.light-theme #themeToggle:hover {
+            background: #ff9800;
+            color: #fff;
+        }
+
         .flash-container {
             position: fixed;
             top: 80px;
@@ -53,15 +93,14 @@
         }
         .alert { border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.4); }
 
-        /* ТЁМНАЯ КАРТОЧКА ПО УМОЛЧАНИЮ */
         .card-dark {
             background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
             border: 1px solid #ffc10733;
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            transition: background .35s ease, border-color .35s ease, color .35s ease;
         }
 
-        /* СВЕТЛАЯ ТЕМА */
         body.light-theme {
             background: #f4f4f4;
             color: #222;
@@ -92,16 +131,18 @@
             color: #222 !important;
             border-color: #ffc10788 !important;
         }
-        body.light-theme table { color: #222; }
+        body.light-theme table,
         body.light-theme .table { color: #222; }
     </style>
 </head>
 <body>
 
-<!-- НАВИГАЦИЯ -->
 <nav class="navbar navbar-expand-lg navbar-medovik">
     <div class="container">
-        <a class="navbar-brand" href="/">🍯 Медовик</a>
+        <a class="navbar-brand" href="/">
+            <img src="{{ url_for('static', filename='favicon.png') }}" alt="Медовик">
+            <span>Медовик</span>
+        </a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
             <span class="navbar-toggler-icon"></span>
@@ -117,11 +158,8 @@
             </ul>
 
             <ul class="navbar-nav align-items-center">
-                <!-- ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ -->
-                <li class="nav-item me-2">
-                    <button id="themeToggle" type="button"
-                            class="btn btn-sm btn-outline-warning"
-                            title="Сменить тему">🌙</button>
+                <li class="nav-item me-3">
+                    <button id="themeToggle" type="button" title="Сменить тему">🌙</button>
                 </li>
 
                 {% if user %}
@@ -136,7 +174,7 @@
                                 <img src="/{{ user.avatar }}?v={{ range(100000,999999) | random }}"
                                      alt="{{ user.username }}"
                                      class="rounded-circle me-2"
-                                     style="width:38px;height:38px;object-fit:cover;border:2px solid #ffc107;box-shadow:0 0 10px rgba(255,193,7,0.4);"
+                                     style="width:38px;height:38px;object-fit:cover;border:2px solid #ffc107;"
                                      onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2238%22 height=%2238%22 viewBox=%220 0 38 38%22><rect width=%2238%22 height=%2238%22 fill=%22%236c757d%22 rx=%2219%22/><text x=%2219%22 y=%2226%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22white%22>👤</text></svg>';">
                             {% else %}
                                 <img src="data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2238%22 height=%2238%22 viewBox=%220 0 38 38%22><rect width=%2238%22 height=%2238%22 fill=%22%236c757d%22 rx=%2219%22/><text x=%2219%22 y=%2226%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22white%22>👤</text></svg>"
@@ -170,7 +208,6 @@
     </div>
 </nav>
 
-<!-- FLASH -->
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
         <div class="flash-container">
@@ -194,26 +231,25 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // ТЕМА
     (function() {
         const saved = localStorage.getItem('theme') || 'dark';
         if (saved === 'light') {
             document.body.classList.add('light-theme');
-            document.addEventListener('DOMContentLoaded', () => {
-                const btn = document.getElementById('themeToggle');
-                if (btn) btn.textContent = '☀️';
-            });
         }
     })();
 
     document.addEventListener('DOMContentLoaded', function() {
         const btn = document.getElementById('themeToggle');
         if (!btn) return;
+
+        const isLight = document.body.classList.contains('light-theme');
+        btn.textContent = isLight ? '☀️' : '🌙';
+
         btn.addEventListener('click', function() {
             document.body.classList.toggle('light-theme');
-            const isLight = document.body.classList.contains('light-theme');
-            btn.textContent = isLight ? '☀️' : '🌙';
-            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            const light = document.body.classList.contains('light-theme');
+            btn.textContent = light ? '☀️' : '🌙';
+            localStorage.setItem('theme', light ? 'light' : 'dark');
         });
     });
 </script>
