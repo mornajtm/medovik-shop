@@ -98,14 +98,13 @@ class Database:
         cur.execute("INSERT INTO users (username, password, role, balance) VALUES (?, ?, ?, ?)",
                     ('admin', admin_pass, 'admin', 9999))
 
-        # ===== НОВЫЕ ТОВАРЫ =====
+        # ===== ТОВАРЫ =====
         items = [
             # 🔧 ИНСТРУМЕНТЫ
             ('⛏️ Алмазная кирка', 'Прочная алмазная кирка', 'инструменты', 50, 20, '', 10),
             ('🪓 Алмазный топор', 'Острый алмазный топор', 'инструменты', 45, 15, '', 5),
             ('🧹 Алмазная лопата', 'Удобная алмазная лопата', 'инструменты', 30, 25, '', 0),
             ('⛏️ Железная кирка', 'Надёжная железная кирка', 'инструменты', 20, 40, '', 0),
-            ('🪚 Алмазная пила', 'Острая алмазная пила', 'инструменты', 55, 10, '', 15),
 
             # 🧱 БЛОКИ
             ('🧱 Каменный блок', 'Прочный каменный блок', 'блоки', 5, 100, '', 0),
@@ -124,9 +123,6 @@ class Database:
             # 📦 РАЗНОЕ
             ('🏹 Стрелы', 'Острые стрелы для лука', 'разное', 10, 100, '', 0),
             ('🔥 Факел', 'Яркий факел для освещения', 'разное', 2, 200, '', 0),
-            ('📖 Книга', 'Книга с древними знаниями', 'разное', 25, 20, '', 20),
-            ('🧪 Зелье', 'Волшебное зелье', 'разное', 30, 15, '', 0),
-            ('🪄 Волшебная палочка', 'Магический артефакт', 'разное', 40, 10, '', 0),
         ]
         for name, desc, cat, price, stock, img, discount in items:
             cur.execute(
@@ -194,6 +190,13 @@ class Database:
         conn = self.get_connection()
         cur = conn.cursor()
         cur.execute("UPDATE users SET avatar=? WHERE username=?", (avatar_path, username))
+        conn.commit()
+        conn.close()
+
+    def update_user_avatar_by_id(self, user_id, avatar_path):
+        conn = self.get_connection()
+        cur = conn.cursor()
+        cur.execute("UPDATE users SET avatar=? WHERE id=?", (avatar_path, user_id))
         conn.commit()
         conn.close()
 
