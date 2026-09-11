@@ -9,8 +9,7 @@
             <div class="card mb-4">
                 <div class="card-body text-center">
                     {% if user.avatar %}
-                        <img src="{{ url_for('uploaded_file', filename=user.avatar.replace('uploads/', '')) }}"
-                             alt="Аватар" class="rounded-circle mb-3"
+                        <img src="/{{ user.avatar }}" alt="Аватар" class="rounded-circle mb-3"
                              style="width:120px;height:120px;object-fit:cover;border:3px solid #ffc107;">
                     {% else %}
                         <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center mb-3"
@@ -33,7 +32,7 @@
 
                     <hr>
 
-                    <form method="POST" action="{{ url_for('upload_avatar') }}" enctype="multipart/form-data">
+                    <form method="POST" action="/profile/upload_avatar" enctype="multipart/form-data">
                         <div class="mb-2">
                             <input type="file" name="avatar" accept="image/*" class="form-control form-control-sm" required>
                         </div>
@@ -41,7 +40,7 @@
                     </form>
 
                     {% if user.avatar %}
-                    <form method="POST" action="{{ url_for('delete_avatar') }}">
+                    <form method="POST" action="/profile/delete_avatar">
                         <button type="submit" class="btn btn-outline-danger btn-sm w-100">🗑️ Удалить аватарку</button>
                     </form>
                     {% endif %}
