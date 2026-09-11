@@ -1,46 +1,83 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2 style="color:#f7b82b; margin-bottom:20px;">
-    {% if category %}🍯 {{ category|capitalize }}{% else %}🍯 Все товары{% endif %}
-</h2>
+<div class="container mt-4">
 
-<div class="products-grid">
-    {% for p in products %}
-    <a href="{{ url_for('product_page', product_id=p.id) }}" style="text-decoration:none; display:block;">
-        <div class="product-card" style="cursor:pointer; position:relative;">
-            {% if p.discount and p.discount > 0 %}
-            <div style="position:absolute; top:10px; right:10px; background:#ff4444; color:white; padding:4px 12px; border-radius:20px; font-weight:700; font-size:0.8rem; z-index:5;">
-                -{{ p.discount }}%
-            </div>
-            {% endif %}
+    <h2 style="color:#ffc107;margin-bottom:25px;">
+        {% if category %}🍯 {{ category|capitalize }}{% else %}🍯 Все товары{% endif %}
+    </h2>
 
-            {% if p.image %}
-                <img src="{{ url_for('uploaded_file', filename=p.image) }}" alt="{{ p.name }}">
-            {% else %}
-                <span class="no-image">🍯</span>
-            {% endif %}
-            <div class="category">{{ p.category }}</div>
-            <h3>{{ p.name }}</h3>
-            <div class="desc">{{ p.description[:60] }}{% if p.description|length > 60 %}...{% endif %}</div>
-            <div class="price">
-                {% if p.discount and p.discount > 0 %}
-                    <span style="text-decoration:line-through; color:#888; font-size:0.8rem;">{{ p.price }} 🍯</span>
-                    <span style="color:#ff4444;">{{ (p.price * (100 - p.discount) / 100)|int }} 🍯</span>
-                {% else %}
-                    {{ p.price }} <span>🍯 Мед коины</span>
+    <!-- РЕКЛАМА -->
+    {% if ads %}
+    <div class="row mb-4 g-3">
+        {% for ad in ads %}
+        <div class="col-md-6">
+            <div style="background:linear-gradient(135deg,#2a2a2a,#1a1a1a);border:1px solid #ffc10755;border-radius:16px;padding:18px 22px;">
+                <h5 style="color:#ffc107;margin:0 0 6px;">{{ ad.title }}</h5>
+                <p style="color:#bbb;margin:0;font-size:.9rem;">{{ ad.text }}</p>
+                {% if ad.link %}
+                    <a href="{{ ad.link }}" class="btn btn-warning btn-sm mt-2">Подробнее</a>
                 {% endif %}
             </div>
-            <div class="stock">в наличии: {{ p.stock }}</div>
-            {% if p.stock and p.stock > 0 %}
-                <span class="btn btn-gold" style="font-size:0.9rem; display:inline-block; pointer-events:none;">В корзину</span>
-            {% else %}
-                <span style="color:#ff6666; font-size:0.8rem;">Нет в наличии</span>
-            {% endif %}
         </div>
-    </a>
-    {% else %}
-    <p style="color:#a09070; text-align:center; grid-column:1/-1; padding:40px 0;">Товаров пока нет</p>
-    {% endfor %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ТОВАРЫ -->
+    <div class="row g-4">
+        {% for p in products %}
+        <div class="col-lg-3 col-md-4 col-sm-6">
+            <a href="{{ url_for('product_page', product_id=p.id) }}" style="text-decoration:none;">
+                <div style="background:linear-gradient(145deg,#2a2a2a,#1a1a1a);border:1px solid #ffc10733;border-radius:16px;padding:15px;height:100%;transition:.2s;position:relative;"
+                     onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 10px 30px rgba(255,193,7,0.25)';"
+                     onmouseout="this.style.transform='';this.style.boxShadow='';">
+
+                    {% if p.discount and p.discount > 0 %}
+                    <div style="position:absolute;top:12px;right:12px;background:#dc3545;color:white;padding:4px 10px;border-radius:20px;font-size:.8rem;font-weight:700;z-index:2;">
+                        -{{ p.discount }}%
+                    </div>
+                    {% endif %}
+
+                    {% if p.image %}
+                        <img src="{{ url_for('uploaded_file', filename=p.image) }}"
+                             style="width:100%;height:170px;object-fit:cover;border-radius:12px;" alt="{{ p.name }}">
+                    {% else %}
+                        <div style="height:170px;display:flex;align-items:center;justify-content:center;font-size:70px;background:#222;border-radius:12px;">🍯</div>
+                    {% endif %}
+
+                    <div style="color:#ffc107;text-transform:uppercase;font-size:.7rem;letter-spacing:1px;margin-top:12px;">
+                        {{ p.category }}
+                    </div>
+                    <h5 style="color:#fff;margin:4px 0 6px;">{{ p.name }}</h5>
+                    <p style="color:#aaa;font-size:.85rem;margin:0 0 12px;">{{ p.description[:60] }}{% if p.description|length > 60 %}...{% endif %}</p>
+
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <div>
+                            {% if p.discount and p.discount > 0 %}
+                                <span style="color:#ffc107;font-weight:700;font-size:1.15rem;">{{ (p.price * (100 - p.discount) / 100)|int }} 🍯</span>
+                                <span style="color:#666;text-decoration:line-through;font-size:.8rem;margin-left:6px;">{{ p.price }} 🍯</span>
+                            {% else %}
+                                <span style="color:#ffc107;font-weight:700;font-size:1.15rem;">{{ p.price }} 🍯</span>
+                            {% endif %}
+                        </div>
+                        <small style="color:#888;">📦 {{ p.stock }}</small>
+                    </div>
+
+                    {% if p.stock and p.stock > 0 %}
+                        <span class="btn btn-warning w-100">🛒 В корзину</span>
+                    {% else %}
+                        <span class="btn w-100" style="background:#3a1a1a;color:#ff5555;">❌ Нет в наличии</span>
+                    {% endif %}
+                </div>
+            </a>
+        </div>
+        {% else %}
+        <div class="col-12 text-center py-5" style="color:#888;">
+            <div style="font-size:80px;">📦</div>
+            <p class="mt-3">Товаров пока нет</p>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}
