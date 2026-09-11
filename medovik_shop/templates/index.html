@@ -6,7 +6,7 @@
     <!-- КАРУСЕЛЬ РЕКЛАМЫ -->
     {% if ads %}
     <div id="adCarousel" class="carousel slide mb-4" data-bs-ride="carousel" data-bs-interval="4000">
-        <div class="carousel-inner" style="border-radius:16px;overflow:hidden;border:1px solid #ffc10755;">
+        <div class="carousel-inner">
             {% for ad in ads %}
             <div class="carousel-item {% if loop.first %}active{% endif %}">
                 <div style="position:relative;height:240px;background:linear-gradient(135deg,#2a2a2a,#1a1a1a);">
@@ -20,7 +20,7 @@
                         <h3 style="color:#ffc107;margin:0 0 8px;font-weight:700;">{{ ad.title }}</h3>
                         <p style="color:#eee;margin:0 0 12px;">{{ ad.text }}</p>
                         {% if ad.link %}
-                            <a href="{{ ad.link }}" class="btn btn-warning btn-sm">Подробнее →</a>
+                            <a href="{{ ad.link }}" class="btn btn-warning btn-sm" target="_blank">Подробнее →</a>
                         {% endif %}
                     </div>
                 </div>
@@ -48,9 +48,7 @@
         {% for p in products %}
         <div class="col-lg-3 col-md-4 col-sm-6">
             <a href="{{ url_for('product_page', product_id=p.id) }}" style="text-decoration:none;">
-                <div class="card-dark" style="padding:15px;height:100%;transition:.2s;position:relative;"
-                     onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 10px 30px rgba(255,193,7,0.25)';"
-                     onmouseout="this.style.transform='';this.style.boxShadow='';">
+                <div class="card-dark" style="padding:15px;height:100%;">
 
                     {% if p.discount and p.discount > 0 %}
                     <div style="position:absolute;top:12px;right:12px;background:#dc3545;color:white;padding:4px 10px;border-radius:20px;font-size:.8rem;font-weight:700;z-index:2;">
@@ -86,7 +84,7 @@
                     </div>
 
                     {% if p.stock and p.stock > 0 %}
-                        <span class="btn btn-warning w-100">🛒 В корзину</span>
+                        <a href="{{ url_for('add_to_cart', product_id=p.id) }}" class="btn btn-warning w-100">🛒 В корзину</a>
                     {% else %}
                         <span class="btn w-100" style="background:#3a1a1a;color:#ff5555;">❌ Нет в наличии</span>
                     {% endif %}
