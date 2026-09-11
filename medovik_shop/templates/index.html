@@ -3,33 +3,52 @@
 {% block content %}
 <div class="container mt-4">
 
+    <!-- КАРУСЕЛЬ РЕКЛАМЫ -->
+    {% if ads %}
+    <div id="adCarousel" class="carousel slide mb-4" data-bs-ride="carousel" data-bs-interval="4000">
+        <div class="carousel-inner" style="border-radius:16px;overflow:hidden;border:1px solid #ffc10755;">
+            {% for ad in ads %}
+            <div class="carousel-item {% if loop.first %}active{% endif %}">
+                <div style="position:relative;height:240px;background:linear-gradient(135deg,#2a2a2a,#1a1a1a);">
+                    {% if ad.image %}
+                        <img src="{{ url_for('uploaded_file', filename=ad.image) }}"
+                             style="width:100%;height:240px;object-fit:cover;"
+                             alt="{{ ad.title }}">
+                        <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,0.75),rgba(0,0,0,0.15));"></div>
+                    {% endif %}
+                    <div style="position:absolute;left:30px;top:50%;transform:translateY(-50%);max-width:60%;">
+                        <h3 style="color:#ffc107;margin:0 0 8px;font-weight:700;">{{ ad.title }}</h3>
+                        <p style="color:#eee;margin:0 0 12px;">{{ ad.text }}</p>
+                        {% if ad.link %}
+                            <a href="{{ ad.link }}" class="btn btn-warning btn-sm">Подробнее →</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if ads|length > 1 %}
+        <button class="carousel-control-prev" type="button" data-bs-target="#adCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#adCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
+        {% endif %}
+    </div>
+    {% endif %}
+
     <h2 style="color:#ffc107;margin-bottom:25px;">
         {% if category %}🍯 {{ category|capitalize }}{% else %}🍯 Все товары{% endif %}
     </h2>
-
-    <!-- РЕКЛАМА -->
-    {% if ads %}
-    <div class="row mb-4 g-3">
-        {% for ad in ads %}
-        <div class="col-md-6">
-            <div style="background:linear-gradient(135deg,#2a2a2a,#1a1a1a);border:1px solid #ffc10755;border-radius:16px;padding:18px 22px;">
-                <h5 style="color:#ffc107;margin:0 0 6px;">{{ ad.title }}</h5>
-                <p style="color:#bbb;margin:0;font-size:.9rem;">{{ ad.text }}</p>
-                {% if ad.link %}
-                    <a href="{{ ad.link }}" class="btn btn-warning btn-sm mt-2">Подробнее</a>
-                {% endif %}
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
 
     <!-- ТОВАРЫ -->
     <div class="row g-4">
         {% for p in products %}
         <div class="col-lg-3 col-md-4 col-sm-6">
             <a href="{{ url_for('product_page', product_id=p.id) }}" style="text-decoration:none;">
-                <div style="background:linear-gradient(145deg,#2a2a2a,#1a1a1a);border:1px solid #ffc10733;border-radius:16px;padding:15px;height:100%;transition:.2s;position:relative;"
+                <div class="card-dark" style="padding:15px;height:100%;transition:.2s;position:relative;"
                      onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 10px 30px rgba(255,193,7,0.25)';"
                      onmouseout="this.style.transform='';this.style.boxShadow='';">
 
@@ -49,8 +68,10 @@
                     <div style="color:#ffc107;text-transform:uppercase;font-size:.7rem;letter-spacing:1px;margin-top:12px;">
                         {{ p.category }}
                     </div>
-                    <h5 style="color:#fff;margin:4px 0 6px;">{{ p.name }}</h5>
-                    <p style="color:#aaa;font-size:.85rem;margin:0 0 12px;">{{ p.description[:60] }}{% if p.description|length > 60 %}...{% endif %}</p>
+                    <h5 class="text-light-force" style="color:#fff;margin:4px 0 6px;">{{ p.name }}</h5>
+                    <p class="text-muted-force" style="color:#aaa;font-size:.85rem;margin:0 0 12px;">
+                        {{ p.description[:60] }}{% if p.description|length > 60 %}...{% endif %}
+                    </p>
 
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
                         <div>
