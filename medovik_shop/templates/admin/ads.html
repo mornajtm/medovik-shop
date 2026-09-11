@@ -1,62 +1,63 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2 style="color:#f7b82b;">📢 Управление рекламой</h2>
+<div class="container mt-4">
+    <h2 style="color:#ffc107;margin-bottom:25px;">📢 Управление рекламой</h2>
 
-<div style="background:rgba(255,255,255,0.03); border-radius:20px; padding:20px; margin:16px 0; border:1px solid rgba(247,184,43,0.08);">
-    <h4 style="color:#fde3a0;">➕ Добавить рекламный слайд</h4>
-    <form method="POST" action="{{ url_for('add_ad') }}" enctype="multipart/form-data" style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
-        <input type="text" name="title" placeholder="Заголовок" required style="flex:1; min-width:150px; padding:8px 14px; border-radius:30px; background:rgba(0,0,0,0.3); border:1px solid rgba(247,184,43,0.1); color:#fde3a0;">
-        <input type="text" name="text" placeholder="Текст" style="flex:2; min-width:150px; padding:8px 14px; border-radius:30px; background:rgba(0,0,0,0.3); border:1px solid rgba(247,184,43,0.1); color:#fde3a0;">
-        <input type="text" name="link" placeholder="Ссылка (необязательно)" style="flex:1; min-width:120px; padding:8px 14px; border-radius:30px; background:rgba(0,0,0,0.3); border:1px solid rgba(247,184,43,0.1); color:#fde3a0;">
-        <input type="file" name="image" accept="image/*" style="color:#a09070; padding:4px;">
-        <button type="submit" class="btn btn-gold">➕ Добавить</button>
-    </form>
+    <div style="background:linear-gradient(145deg,#2a2a2a,#1a1a1a);border:1px solid #ffc10733;border-radius:20px;padding:22px;margin-bottom:25px;">
+        <h5 style="color:#ffc107;margin-bottom:15px;">➕ Добавить рекламу</h5>
+        <form method="POST" action="{{ url_for('add_ad') }}" enctype="multipart/form-data">
+            <div class="row g-2">
+                <div class="col-md-3"><input type="text" name="title" placeholder="Заголовок" required class="form-control" style="background:#1a1a1a;border:1px solid #ffc10755;color:#fff;"></div>
+                <div class="col-md-4"><input type="text" name="text" placeholder="Текст" class="form-control" style="background:#1a1a1a;border:1px solid #ffc10755;color:#fff;"></div>
+                <div class="col-md-2"><input type="text" name="link" placeholder="Ссылка" class="form-control" style="background:#1a1a1a;border:1px solid #ffc10755;color:#fff;"></div>
+                <div class="col-md-2"><input type="file" name="image" accept="image/*" class="form-control" style="background:#1a1a1a;border:1px solid #ffc10755;color:#ccc;"></div>
+                <div class="col-md-1"><button type="submit" class="btn btn-warning w-100">➕</button></div>
+            </div>
+        </form>
+    </div>
+
+    <div style="background:linear-gradient(145deg,#2a2a2a,#1a1a1a);border:1px solid #ffc10733;border-radius:20px;padding:20px;overflow-x:auto;">
+        <table class="table" style="color:#ddd;">
+            <thead>
+                <tr style="border-bottom:1px solid #ffc10755;">
+                    <th style="color:#ffc107;">#</th>
+                    <th style="color:#ffc107;">Фото</th>
+                    <th style="color:#ffc107;">Заголовок</th>
+                    <th style="color:#ffc107;">Текст</th>
+                    <th style="color:#ffc107;">Статус</th>
+                    <th style="color:#ffc107;">Действие</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ad in ads %}
+                <tr style="border-bottom:1px solid #ffc10722;">
+                    <td>{{ ad.id }}</td>
+                    <td>
+                        {% if ad.image %}
+                            <img src="{{ url_for('uploaded_file', filename=ad.image) }}" style="width:60px;height:60px;object-fit:cover;border-radius:8px;">
+                        {% else %}
+                            <span style="font-size:1.5rem;">🖼️</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ ad.title }}</td>
+                    <td style="font-size:.85rem;">{{ ad.text[:50] if ad.text }}{% if ad.text and ad.text|length > 50 %}...{% endif %}</td>
+                    <td>
+                        {% if ad.active %}<span style="color:#55ff88;">✅ Активен</span>
+                        {% else %}<span style="color:#ff6666;">⛔ Отключён</span>{% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('admin_toggle_ad', ad_id=ad.id) }}" class="btn btn-outline-warning btn-sm">
+                            {% if ad.active %}⛔{% else %}✅{% endif %}
+                        </a>
+                        <a href="{{ url_for('admin_delete_ad', ad_id=ad.id) }}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Удалить рекламу?')">🗑️</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="text-center py-4" style="color:#888;">📭 Рекламы пока нет</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
-
-<table class="admin-table">
-    <tr>
-        <th>#</th>
-        <th>Фото</th>
-        <th>Заголовок</th>
-        <th>Текст</th>
-        <th>Ссылка</th>
-        <th>Статус</th>
-        <th>Действие</th>
-    </tr>
-    {% for ad in ads %}
-    <tr>
-        <td>{{ ad.id }}</td>
-        <td>
-            {% if ad.image %}
-                <img src="{{ url_for('uploaded_file', filename=ad.image) }}" alt="{{ ad.title }}" style="width:60px;height:60px;object-fit:cover;border-radius:8px;">
-            {% else %}
-                <span style="font-size:1.5rem;">🖼️</span>
-            {% endif %}
-        </td>
-        <td>{{ ad.title }}</td>
-        <td style="max-width:200px; word-wrap:break-word;">{{ ad.text[:50] }}{% if ad.text|length > 50 %}...{% endif %}</td>
-        <td>{% if ad.link %}<a href="{{ ad.link }}" target="_blank" style="color:#f7b82b;">🔗</a>{% else %}—{% endif %}</td>
-        <td>
-            {% if ad.active %}
-                <span style="color:#55ff88;">✅ Активен</span>
-            {% else %}
-                <span style="color:#ff6666;">⛔ Отключён</span>
-            {% endif %}
-        </td>
-        <td>
-            <a href="{{ url_for('admin_toggle_ad', ad_id=ad.id) }}" class="btn btn-dark btn-sm">
-                {% if ad.active %}⛔ Отключить{% else %}✅ Включить{% endif %}
-            </a>
-            <a href="{{ url_for('admin_delete_ad', ad_id=ad.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Удалить рекламу?')">🗑️</a>
-        </td>
-    </tr>
-    {% else %}
-    <tr>
-        <td colspan="7" style="text-align:center; color:rgba(160,144,112,0.4); padding:20px 0;">
-            📭 Рекламы пока нет
-        </td>
-    </tr>
-    {% endfor %}
-</table>
 {% endblock %}
