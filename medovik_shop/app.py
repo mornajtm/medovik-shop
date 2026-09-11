@@ -140,15 +140,6 @@ def profile():
     ads = db.get_all_ads()
     return render_template('profile.html', user=user, orders=orders, ads=ads)
 
-@app.route('/profile/update', methods=['POST'])
-@login_required
-def update_profile():
-    telegram = request.form.get('telegram')
-    discord = request.form.get('discord')
-    db.update_user_socials(session['user_id'], telegram, discord)
-    flash('Социальные сети обновлены!', 'success')
-    return redirect(url_for('profile'))
-
 @app.route('/cart')
 @login_required
 def cart():
@@ -196,7 +187,7 @@ def checkout():
         return redirect(url_for('cart'))
     if request.method == 'POST':
         address = request.form.get('address')
-        pickup_point = request.form.get('pickup_point', 'ПВЗ в разработке')
+        pickup_point = 'Клоповник'
         if not address:
             flash('Заполните адрес доставки!', 'danger')
             return redirect(url_for('checkout'))
