@@ -4,8 +4,12 @@
 <div class="container mt-4">
     <h2 style="color:#ffc107;margin-bottom:25px;">📢 Управление рекламой</h2>
 
-    <div style="background:linear-gradient(145deg,#2a2a2a,#1a1a1a);border:1px solid #ffc10733;border-radius:20px;padding:22px;margin-bottom:25px;">
+    <div class="card-dark" style="padding:22px;margin-bottom:25px;">
         <h5 style="color:#ffc107;margin-bottom:15px;">➕ Добавить рекламу</h5>
+        <p style="color:#888;font-size:.85rem;margin-bottom:15px;">
+            📷 Формат: <b>PNG, JPG, JPEG, GIF, WEBP</b>. Рекомендуемый размер: <b>1200×500 px</b>.
+            Максимум <b>32 МБ</b>. Фото автоматически сожмётся.
+        </p>
         <form method="POST" action="{{ url_for('add_ad') }}" enctype="multipart/form-data">
             <div class="row g-2">
                 <div class="col-md-3"><input type="text" name="title" placeholder="Заголовок" required class="form-control" style="background:#1a1a1a;border:1px solid #ffc10755;color:#fff;"></div>
@@ -17,7 +21,7 @@
         </form>
     </div>
 
-    <div style="background:linear-gradient(145deg,#2a2a2a,#1a1a1a);border:1px solid #ffc10733;border-radius:20px;padding:20px;overflow-x:auto;">
+    <div class="card-dark" style="padding:20px;overflow-x:auto;">
         <table class="table" style="color:#ddd;">
             <thead>
                 <tr style="border-bottom:1px solid #ffc10755;">
@@ -25,6 +29,7 @@
                     <th style="color:#ffc107;">Фото</th>
                     <th style="color:#ffc107;">Заголовок</th>
                     <th style="color:#ffc107;">Текст</th>
+                    <th style="color:#ffc107;">Ссылка</th>
                     <th style="color:#ffc107;">Статус</th>
                     <th style="color:#ffc107;">Действие</th>
                 </tr>
@@ -35,13 +40,15 @@
                     <td>{{ ad.id }}</td>
                     <td>
                         {% if ad.image %}
-                            <img src="{{ url_for('uploaded_file', filename=ad.image) }}" style="width:60px;height:60px;object-fit:cover;border-radius:8px;">
+                            <img src="{{ url_for('uploaded_file', filename=ad.image) }}"
+                                 style="width:100px;height:60px;object-fit:cover;border-radius:8px;">
                         {% else %}
                             <span style="font-size:1.5rem;">🖼️</span>
                         {% endif %}
                     </td>
                     <td>{{ ad.title }}</td>
-                    <td style="font-size:.85rem;">{{ ad.text[:50] if ad.text }}{% if ad.text and ad.text|length > 50 %}...{% endif %}</td>
+                    <td style="font-size:.85rem;max-width:200px;">{{ ad.text[:50] if ad.text }}{% if ad.text and ad.text|length > 50 %}...{% endif %}</td>
+                    <td>{% if ad.link %}<a href="{{ ad.link }}" target="_blank" style="color:#ffc107;">🔗</a>{% else %}—{% endif %}</td>
                     <td>
                         {% if ad.active %}<span style="color:#55ff88;">✅ Активен</span>
                         {% else %}<span style="color:#ff6666;">⛔ Отключён</span>{% endif %}
@@ -54,7 +61,7 @@
                     </td>
                 </tr>
                 {% else %}
-                <tr><td colspan="6" class="text-center py-4" style="color:#888;">📭 Рекламы пока нет</td></tr>
+                <tr><td colspan="7" class="text-center py-4" style="color:#888;">📭 Рекламы пока нет</td></tr>
                 {% endfor %}
             </tbody>
         </table>
