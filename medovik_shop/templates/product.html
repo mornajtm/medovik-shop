@@ -1,85 +1,82 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<!-- Хлебные крошки -->
-<div class="breadcrumb">
-    <a href="{{ url_for('index') }}">🏠 Главная</a>
-    <span>›</span>
-    <a href="{{ url_for('category', category=product.category) }}">{{ product.category|capitalize }}</a>
-    <span>›</span>
-    <span style="color:#fde3a0;">{{ product.name }}</span>
-</div>
+<div class="container mt-4">
 
-<!-- Страница товара -->
-<div class="product-page-grid">
-    <!-- Фото -->
-    <div class="product-image">
-        {% if product.image %}
-            <img src="{{ url_for('uploaded_file', filename=product.image) }}" alt="{{ product.name }}">
-        {% else %}
-            <div style="font-size:8rem; text-align:center; padding:80px 0;">🍯</div>
-        {% endif %}
-    </div>
+    <!-- Хлебные крошки -->
+    <nav style="color:#888;margin-bottom:20px;font-size:.9rem;">
+        <a href="/" style="color:#ffc107;text-decoration:none;">🏠 Главная</a>
+        <span class="mx-2">›</span>
+        <a href="/category/{{ product.category }}" style="color:#ffc107;text-decoration:none;">{{ product.category|capitalize }}</a>
+        <span class="mx-2">›</span>
+        <span style="color:#ccc;">{{ product.name }}</span>
+    </nav>
 
-    <!-- Информация -->
-    <div class="product-info">
-        <div class="category-tag">{{ product.category }}</div>
-        <h1>{{ product.name }}</h1>
-        <p class="desc-text">{{ product.description }}</p>
-
-        <div class="price-block">
-            <div class="price-big">
-                {{ product.price }} <span>Ар</span>
-            </div>
-            <div class="stock-status">
-                {% if product.stock > 0 %}
-                    ✅ В наличии: {{ product.stock }} шт.
+    <div class="row g-4">
+        <!-- ФОТО -->
+        <div class="col-md-5">
+            <div style="background:linear-gradient(145deg,#2a2a2a,#1a1a1a);border:1px solid #ffc10733;border-radius:20px;padding:20px;">
+                {% if product.image %}
+                    <img src="{{ url_for('uploaded_file', filename=product.image) }}"
+                         style="width:100%;border-radius:14px;" alt="{{ product.name }}">
                 {% else %}
-                    ❌ Нет в наличии
+                    <div style="height:300px;display:flex;align-items:center;justify-content:center;font-size:120px;">🍯</div>
                 {% endif %}
             </div>
         </div>
 
-        <!-- Кнопки -->
-        <div class="action-buttons">
-            {% if product.stock > 0 %}
-                <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="btn btn-gold" style="font-size:1.1rem; padding:14px 40px;">
-                    🛒 В корзину
-                </a>
-            {% else %}
-                <span class="btn" style="background:rgba(255,50,50,0.15); color:#ff5555; padding:14px 40px; cursor:not-allowed;">
-                    ❌ Нет в наличии
-                </span>
-            {% endif %}
-            <a href="javascript:history.back()" class="btn btn-dark" style="padding:14px 30px;">
-                ← Назад
+        <!-- ИНФО -->
+        <div class="col-md-7">
+            <span style="background:#ffc10722;color:#ffc107;border:1px solid #ffc10755;padding:4px 12px;border-radius:20px;font-size:.8rem;">
+                {{ product.category }}
+            </span>
+            <h1 style="color:#fff;margin:15px 0 10px;">{{ product.name }}</h1>
+            <p style="color:#bbb;">{{ product.description }}</p>
+
+            <div style="background:linear-gradient(90deg,#ffc10722,#ffc10708);border:1px solid #ffc10755;border-radius:14px;padding:18px 22px;margin:20px 0;">
+                <div style="color:#ffc107;font-size:1.8rem;font-weight:700;">
+                    {{ product.price }} 🍯
+                </div>
+                {% if product.stock > 0 %}
+                    <div style="color:#55ff88;margin-top:6px;">✅ В наличии: {{ product.stock }} шт.</div>
+                {% else %}
+                    <div style="color:#ff5555;margin-top:6px;">❌ Нет в наличии</div>
+                {% endif %}
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap">
+                {% if product.stock > 0 %}
+                    <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="btn btn-warning" style="padding:12px 32px;font-size:1.05rem;">
+                        🛒 В корзину
+                    </a>
+                {% else %}
+                    <span class="btn" style="background:#3a1a1a;color:#ff5555;padding:12px 32px;cursor:not-allowed;">❌ Нет в наличии</span>
+                {% endif %}
+                <a href="javascript:history.back()" class="btn btn-outline-warning" style="padding:12px 24px;">← Назад</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПОХОЖИЕ -->
+    {% if similar %}
+    <h3 style="color:#ffc107;margin:50px 0 20px;">🔄 Похожие товары</h3>
+    <div class="row g-4">
+        {% for p in similar %}
+        <div class="col-lg-3 col-md-4 col-sm-6">
+            <a href="{{ url_for('product_page', product_id=p.id) }}" style="text-decoration:none;">
+                <div style="background:linear-gradient(145deg,#2a2a2a,#1a1a1a);border:1px solid #ffc10733;border-radius:16px;padding:15px;">
+                    {% if p.image %}
+                        <img src="{{ url_for('uploaded_file', filename=p.image) }}" style="width:100%;height:150px;object-fit:cover;border-radius:12px;" alt="{{ p.name }}">
+                    {% else %}
+                        <div style="height:150px;display:flex;align-items:center;justify-content:center;font-size:60px;background:#222;border-radius:12px;">🍯</div>
+                    {% endif %}
+                    <h6 style="color:#fff;margin:10px 0 5px;">{{ p.name }}</h6>
+                    <div style="color:#ffc107;font-weight:700;">{{ p.price }} 🍯</div>
+                </div>
             </a>
         </div>
-    </div>
-</div>
-
-<!-- Похожие товары -->
-{% if similar %}
-<div class="similar-products">
-    <h3>🔄 Похожие товары</h3>
-    <div class="products-grid">
-        {% for p in similar %}
-        <a href="{{ url_for('product_page', product_id=p.id) }}" class="product-link">
-            <div class="product-card">
-                {% if p.image %}
-                    <img src="{{ url_for('uploaded_file', filename=p.image) }}" alt="{{ p.name }}">
-                {% else %}
-                    <span class="no-image">🍯</span>
-                {% endif %}
-                <div class="category">{{ p.category }}</div>
-                <h3>{{ p.name }}</h3>
-                <div class="desc">{{ p.description[:60] }}{% if p.description|length > 60 %}...{% endif %}</div>
-                <div class="price">{{ p.price }} <span>Ар</span></div>
-                <div class="stock">в наличии: {{ p.stock }}</div>
-            </div>
-        </a>
         {% endfor %}
     </div>
+    {% endif %}
 </div>
-{% endif %}
 {% endblock %}
