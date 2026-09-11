@@ -435,7 +435,8 @@ def admin_toggle_ad(ad_id):
     flash('Статус рекламы изменён', 'info')
     return redirect(url_for('admin_ads'))
 
-@app.route('/uploads/<filename>')
+# ⬇️⬇️⬇️ ВОТ ЭТО ИСПРАВЛЕНО ⬇️⬇️⬇️
+@app.route('/uploads/<path:filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
