@@ -33,8 +33,6 @@ class Database:
                 balance INTEGER DEFAULT 100,
                 role TEXT DEFAULT 'user',
                 banned INTEGER DEFAULT 0,
-                telegram TEXT,
-                discord TEXT,
                 avatar TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
@@ -171,10 +169,8 @@ class Database:
                 'id': user[0], 'username': user[1], 'password': user[2],
                 'balance': int(user[3] or 0), 'role': user[4],
                 'banned': user[5] if len(user) > 5 else 0,
-                'telegram': user[6] if len(user) > 6 else '',
-                'discord': user[7] if len(user) > 7 else '',
-                'avatar': user[8] if len(user) > 8 else '',
-                'created_at': user[9] if len(user) > 9 else ''
+                'avatar': user[6] if len(user) > 6 else '',
+                'created_at': user[7] if len(user) > 7 else ''
             }
         return None
 
@@ -189,37 +185,10 @@ class Database:
                 'id': user[0], 'username': user[1], 'password': user[2],
                 'balance': int(user[3] or 0), 'role': user[4],
                 'banned': user[5] if len(user) > 5 else 0,
-                'telegram': user[6] if len(user) > 6 else '',
-                'discord': user[7] if len(user) > 7 else '',
-                'avatar': user[8] if len(user) > 8 else '',
-                'created_at': user[9] if len(user) > 9 else ''
+                'avatar': user[6] if len(user) > 6 else '',
+                'created_at': user[7] if len(user) > 7 else ''
             }
         return None
-
-    def get_user_by_telegram(self, telegram_id):
-        conn = self.get_connection()
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM users WHERE telegram=?", (f"@{telegram_id}",))
-        user = cur.fetchone()
-        conn.close()
-        if user:
-            return {
-                'id': user[0], 'username': user[1], 'password': user[2],
-                'balance': int(user[3] or 0), 'role': user[4],
-                'banned': user[5] if len(user) > 5 else 0,
-                'telegram': user[6] if len(user) > 6 else '',
-                'discord': user[7] if len(user) > 7 else '',
-                'avatar': user[8] if len(user) > 8 else '',
-                'created_at': user[9] if len(user) > 9 else ''
-            }
-        return None
-
-    def update_user_socials(self, user_id, telegram, discord):
-        conn = self.get_connection()
-        cur = conn.cursor()
-        cur.execute("UPDATE users SET telegram=?, discord=? WHERE id=?", (telegram, discord, user_id))
-        conn.commit()
-        conn.close()
 
     def update_user_avatar(self, username, avatar_path):
         conn = self.get_connection()
@@ -266,17 +235,15 @@ class Database:
     def get_all_users(self):
         conn = self.get_connection()
         cur = conn.cursor()
-        cur.execute("SELECT id, username, balance, role, banned, telegram, discord, avatar, created_at FROM users")
+        cur.execute("SELECT id, username, balance, role, banned, avatar, created_at FROM users")
         users = cur.fetchall()
         conn.close()
         return [
             {
                 'id': u[0], 'username': u[1], 'balance': int(u[2] or 0),
                 'role': u[3], 'banned': u[4] if len(u) > 4 else 0,
-                'telegram': u[5] if len(u) > 5 else '',
-                'discord': u[6] if len(u) > 6 else '',
-                'avatar': u[7] if len(u) > 7 else '',
-                'created_at': u[8] if len(u) > 8 else ''
+                'avatar': u[5] if len(u) > 5 else '',
+                'created_at': u[6] if len(u) > 6 else ''
             }
             for u in users
         ]
