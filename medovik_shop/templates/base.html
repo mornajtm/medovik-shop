@@ -6,20 +6,17 @@
     <title>{% block title %}Медовик{% endblock %}</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
-        * { transition: background-color .35s ease, color .35s ease, border-color .35s ease; }
-
         body {
             background: #141414;
             color: #e0e0e0;
             font-family: 'Segoe UI', Tahoma, sans-serif;
-            transition: background .35s ease, color .35s ease;
         }
         .navbar-medovik {
             background: linear-gradient(90deg, #1a1a1a, #2a2a2a);
             border-bottom: 2px solid #ffc107;
             box-shadow: 0 2px 15px rgba(255,193,7,0.15);
-            transition: background .35s ease, border-color .35s ease;
         }
         .navbar-medovik .navbar-brand {
             color: #ffc107 !important;
@@ -34,10 +31,7 @@
             width: 40px;
             object-fit: contain;
         }
-        .navbar-medovik .nav-link {
-            color: #ccc !important;
-            transition: color .2s;
-        }
+        .navbar-medovik .nav-link { color: #ccc !important; transition: color .2s; }
         .navbar-medovik .nav-link:hover { color: #ffc107 !important; }
         .dropdown-menu { background: #222; border: 1px solid #ffc10733; }
         .dropdown-item { color: #ddd; }
@@ -98,7 +92,6 @@
             border: 1px solid #ffc10733;
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-            transition: background .35s ease, border-color .35s ease, color .35s ease;
         }
 
         body.light-theme {
@@ -108,7 +101,6 @@
         body.light-theme .navbar-medovik {
             background: linear-gradient(90deg, #fff, #f0f0f0);
             border-bottom: 2px solid #ffb300;
-            box-shadow: 0 2px 15px rgba(255,179,0,0.2);
         }
         body.light-theme .navbar-medovik .nav-link { color: #333 !important; }
         body.light-theme .navbar-medovik .nav-link:hover { color: #ff9800 !important; }
@@ -164,7 +156,7 @@
 
                 {% if user %}
                     <li class="nav-item me-3">
-                        <a class="nav-link" href="/cart">🛒 Корзина</a>
+                        <a class="nav-link cart-link" href="/cart" id="cartLink">🛒 Корзина</a>
                     </li>
 
                     <li class="nav-item dropdown">
@@ -231,27 +223,87 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    (function() {
-        const saved = localStorage.getItem('theme') || 'dark';
-        if (saved === 'light') {
-            document.body.classList.add('light-theme');
-        }
-    })();
+// ============================================================
+// ТЕМА
+// ============================================================
+(function() {
+    const saved = localStorage.getItem('theme') || 'dark';
+    if (saved === 'light') document.body.classList.add('light-theme');
+})();
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const btn = document.getElementById('themeToggle');
-        if (!btn) return;
+document.addEventListener('DOMContentLoaded', function() {
+    const btn = document.getElementById('themeToggle');
+    if (!btn) return;
 
-        const isLight = document.body.classList.contains('light-theme');
-        btn.textContent = isLight ? '☀️' : '🌙';
+    const isLight = document.body.classList.contains('light-theme');
+    btn.textContent = isLight ? '☀️' : '🌙';
 
-        btn.addEventListener('click', function() {
-            document.body.classList.toggle('light-theme');
-            const light = document.body.classList.contains('light-theme');
-            btn.textContent = light ? '☀️' : '🌙';
-            localStorage.setItem('theme', light ? 'light' : 'dark');
+    btn.addEventListener('click', function() {
+        btn.classList.add('spin');
+        setTimeout(() => btn.classList.remove('spin'), 600);
+
+        document.body.classList.toggle('light-theme');
+        const light = document.body.classList.contains('light-theme');
+        btn.textContent = light ? '☀️' : '🌙';
+        localStorage.setItem('theme', light ? 'light' : 'dark');
+    });
+});
+
+// ============================================================
+// АНИМАЦИЯ ПЕРЕХОДА МЕЖДУ СТРАНИЦАМИ
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    const links = document.querySelectorAll('a[href^="/"]:not([target="_blank"]):not([href^="#"])');
+    links.forEach(link => {
+        link.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if (href.startsWith('/add_to_cart') ||
+                href.startsWith('/remove_from_cart') ||
+                href.startsWith('/admin/toggle') ||
+                href.startsWith('/admin/delete') ||
+                href.startsWith('/admin/order') ||
+                href.startsWith('/admin/user') ||
+                href.startsWith('/logout')) return;
+
+            e.preventDefault();
+            document.body.classList.add('page-leaving');
+            setTimeout(() => { window.location.href = href; }, 220);
         });
     });
+});
+
+// ============================================================
+// АНИМАЦИЯ ДОБАВЛЕНИЯ В КОРЗИНУ
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    const cartLinks = document.querySelectorAll('a[href^="/add_to_cart/"]');
+    cartLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            const cartIcon = document.getElementById('cartLink');
+            if (cartIcon) {
+                cartIcon.classList.add('cart-bounce');
+                setTimeout(() => cartIcon.classList.remove('cart-bounce'), 700);
+            }
+
+            const toast = document.createElement('div');
+            toast.className = 'added-toast';
+            toast.textContent = 'Добавлено в корзину!';
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2200);
+        });
+    });
+});
+
+// ============================================================
+// ПУЛЬС БАЛАНСА (при загрузке страницы)
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    const balanceEls = document.querySelectorAll('.balance-box, .balance, .user-panel .balance');
+    balanceEls.forEach(el => {
+        el.classList.add('balance-animate');
+        setTimeout(() => el.classList.remove('balance-animate'), 700);
+    });
+});
 </script>
 </body>
 </html>
