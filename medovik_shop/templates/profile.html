@@ -3,103 +3,206 @@
 {% block title %}Профиль — {{ user.username }}{% endblock %}
 
 {% block content %}
+<style>
+    .profile-card {
+        background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+        border: 1px solid #ffc10733;
+        border-radius: 20px;
+        padding: 30px 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        transition: transform .2s;
+    }
+    .profile-card:hover { transform: translateY(-3px); }
+
+    .avatar-wrapper {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 15px;
+    }
+    .avatar-wrapper img {
+        width: 140px;
+        height: 140px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 4px solid #ffc107;
+        box-shadow: 0 0 25px rgba(255,193,7,0.4);
+    }
+
+    .username {
+        color: #ffc107;
+        font-weight: 700;
+        font-size: 1.4rem;
+        margin-bottom: 6px;
+    }
+    .role-badge {
+        background: #ffc10722;
+        color: #ffc107;
+        border: 1px solid #ffc10755;
+        padding: 3px 12px;
+        border-radius: 20px;
+        font-size: .85rem;
+        display: inline-block;
+    }
+    .balance-box {
+        background: linear-gradient(90deg, #ffc10722, #ffc10708);
+        border: 1px solid #ffc10755;
+        border-radius: 12px;
+        padding: 10px 15px;
+        margin: 15px 0;
+        font-size: 1.15rem;
+        color: #ffc107;
+        font-weight: 600;
+    }
+
+    .avatar-btn {
+        background: linear-gradient(90deg, #ffc107, #ffb300);
+        border: none;
+        color: #1a1a1a;
+        font-weight: 600;
+        border-radius: 10px;
+        padding: 8px 16px;
+        transition: .2s;
+    }
+    .avatar-btn:hover { background: linear-gradient(90deg, #ffb300, #ff9800); color:#1a1a1a; transform: scale(1.02); }
+
+    .delete-btn {
+        border: 1px solid #dc3545;
+        color: #dc3545;
+        background: transparent;
+        border-radius: 10px;
+        padding: 8px 16px;
+        transition: .2s;
+    }
+    .delete-btn:hover { background: #dc3545; color: white; }
+
+    .orders-card {
+        background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+        border: 1px solid #ffc10733;
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+    .orders-card h5 { color: #ffc107; }
+    .orders-card table { color: #ddd; }
+    .orders-card thead th { border-color: #ffc10733; color: #ffc107; }
+
+    .file-input {
+        background: #1a1a1a;
+        border: 1px dashed #ffc10755;
+        border-radius: 10px;
+        color: #ccc;
+        padding: 8px;
+    }
+    .file-input::file-selector-button {
+        background: #ffc107;
+        color: #1a1a1a;
+        border: none;
+        border-radius: 6px;
+        padding: 5px 10px;
+        font-weight: 600;
+        margin-right: 10px;
+    }
+</style>
+
 <div class="container mt-4">
-    <div class="row">
+    <div class="row g-4">
+
+        <!-- ЛЕВАЯ КОЛОНКА — ПРОФИЛЬ -->
         <div class="col-md-4">
-            <div class="card mb-4">
-                <div class="card-body text-center">
+            <div class="profile-card text-center">
 
-                    {# ---- АВАТАРКА ---- #}
+                <div class="avatar-wrapper">
                     {% if user.avatar %}
-                        <img src="/{{ user.avatar }}?v={{ range(100000, 999999) | random }}"
-                             alt="Аватар"
-                             class="rounded-circle mb-3"
-                             style="width:120px;height:120px;object-fit:cover;border:3px solid #ffc107;"
-                             onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%22120%22 viewBox=%220 0 120 120%22><rect width=%22120%22 height=%22120%22 fill=%22%236c757d%22/><text x=%2260%22 y=%2278%22 font-size=%2260%22 text-anchor=%22middle%22 fill=%22white%22>👤</text></svg>';">
+                        <img src="/{{ user.avatar }}?v={{ range(100000,999999) | random }}"
+                             alt="{{ user.username }}"
+                             onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22140%22 height=%22140%22 viewBox=%220 0 140 140%22><rect width=%22140%22 height=%22140%22 fill=%22%236c757d%22 rx=%2270%22/><text x=%2270%22 y=%2290%22 font-size=%2260%22 text-anchor=%22middle%22 fill=%22white%22>👤</text></svg>';">
                     {% else %}
-                        <img src="data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%22120%22 viewBox=%220 0 120 120%22><rect width=%22120%22 height=%22120%22 fill=%22%236c757d%22/><text x=%2260%22 y=%2278%22 font-size=%2260%22 text-anchor=%22middle%22 fill=%22white%22>👤</text></svg>"
-                             alt="Аватар"
-                             class="rounded-circle mb-3"
-                             style="width:120px;height:120px;object-fit:cover;border:3px solid #ffc107;">
-                    {% endif %}
-
-                    <h4>{{ user.username }}</h4>
-                    <p class="text-muted">
-                        Роль:
-                        {% if user.role == 'admin' %}👑 Админ
-                        {% elif user.role == 'seller' %}🛍️ Продавец
-                        {% else %}👤 Пользователь{% endif %}
-                    </p>
-                    <h5>Баланс: {{ user.balance }} 🍯</h5>
-                    {% if user.banned == 1 %}
-                        <span class="badge bg-danger">Заблокирован</span>
-                    {% endif %}
-
-                    <hr>
-
-                    <form method="POST" action="/profile/upload_avatar" enctype="multipart/form-data">
-                        <div class="mb-2">
-                            <input type="file" name="avatar" accept="image/*" class="form-control form-control-sm" required>
-                        </div>
-                        <button type="submit" class="btn btn-warning btn-sm w-100 mb-2">📷 Загрузить аватарку</button>
-                    </form>
-
-                    {% if user.avatar %}
-                    <form method="POST" action="/profile/delete_avatar">
-                        <button type="submit" class="btn btn-outline-danger btn-sm w-100">🗑️ Удалить аватарку</button>
-                    </form>
+                        <img src="data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22140%22 height=%22140%22 viewBox=%220 0 140 140%22><rect width=%22140%22 height=%22140%22 fill=%22%236c757d%22 rx=%2270%22/><text x=%2270%22 y=%2290%22 font-size=%2260%22 text-anchor=%22middle%22 fill=%22white%22>👤</text></svg>"
+                             alt="{{ user.username }}">
                     {% endif %}
                 </div>
+
+                <div class="username">{{ user.username }}</div>
+
+                <span class="role-badge">
+                    {% if user.role == 'admin' %}👑 Админ
+                    {% elif user.role == 'seller' %}🛍️ Продавец
+                    {% else %}👤 Пользователь{% endif %}
+                </span>
+
+                <div class="balance-box">
+                    🍯 {{ user.balance }} Мед коинов
+                </div>
+
+                {% if user.banned == 1 %}
+                    <span class="badge bg-danger mb-3">🚫 Заблокирован</span>
+                {% endif %}
+
+                <hr style="border-color:#ffc10733;">
+
+                <form method="POST" action="/profile/upload_avatar" enctype="multipart/form-data" class="mb-2">
+                    <input type="file" name="avatar" accept="image/*"
+                           class="form-control file-input mb-2" required>
+                    <button type="submit" class="avatar-btn w-100">📷 Загрузить аватарку</button>
+                </form>
+
+                {% if user.avatar %}
+                <form method="POST" action="/profile/delete_avatar">
+                    <button type="submit" class="delete-btn w-100">🗑️ Удалить аватарку</button>
+                </form>
+                {% endif %}
             </div>
         </div>
 
+        <!-- ПРАВАЯ КОЛОНКА — ЗАКАЗЫ -->
         <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">📦 Мои заказы</h5>
-                </div>
-                <div class="card-body">
-                    {% if orders %}
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Сумма</th>
-                                        <th>Статус</th>
-                                        <th>ПВЗ</th>
-                                        <th>Дата</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for order in orders %}
-                                    <tr>
-                                        <td>{{ order.id }}</td>
-                                        <td>{{ order.total }} 🍯</td>
-                                        <td>
-                                            {% if order.status == 'collecting' %}
-                                                <span class="badge bg-warning text-dark">Собирается</span>
-                                            {% elif order.status == 'delivering' %}
-                                                <span class="badge bg-info text-dark">В пути</span>
-                                            {% elif order.status == 'delivered' %}
-                                                <span class="badge bg-success">Доставлен</span>
-                                            {% elif order.status == 'cancelled' %}
-                                                <span class="badge bg-danger">Отменён</span>
-                                            {% else %}
-                                                <span class="badge bg-secondary">{{ order.status }}</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>{{ order.pickup_point or '—' }}</td>
-                                        <td>{{ order.created_at }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <p class="text-muted">У вас пока нет заказов.</p>
-                    {% endif %}
-                </div>
+            <div class="orders-card">
+                <h5 class="mb-4">📦 Мои заказы</h5>
+
+                {% if orders %}
+                    <div class="table-responsive">
+                        <table class="table table-borderless align-middle">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Сумма</th>
+                                    <th>Статус</th>
+                                    <th>ПВЗ</th>
+                                    <th>Дата</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders %}
+                                <tr style="border-bottom:1px solid #ffc10722;">
+                                    <td>#{{ order.id }}</td>
+                                    <td style="color:#ffc107;font-weight:600;">{{ order.total }} 🍯</td>
+                                    <td>
+                                        {% if order.status == 'collecting' %}
+                                            <span class="badge bg-warning text-dark">📦 Собирается</span>
+                                        {% elif order.status == 'delivering' %}
+                                            <span class="badge bg-info text-dark">🚚 В пути</span>
+                                        {% elif order.status == 'delivered' %}
+                                            <span class="badge bg-success">✅ Доставлен</span>
+                                        {% elif order.status == 'cancelled' %}
+                                            <span class="badge bg-danger">❌ Отменён</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ order.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ order.pickup_point or '—' }}</td>
+                                    <td style="color:#888;font-size:.85rem;">{{ order.created_at }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5" style="color:#888;">
+                        <div style="font-size:60px;">📭</div>
+                        <p class="mt-3">У вас пока нет заказов</p>
+                        <a href="/" class="avatar-btn" style="text-decoration:none;display:inline-block;">🛍️ За покупками</a>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
