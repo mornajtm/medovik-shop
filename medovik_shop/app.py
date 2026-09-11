@@ -231,11 +231,10 @@ def checkout():
         flash('Корзина пуста', 'warning')
         return redirect(url_for('cart'))
     if request.method == 'POST':
-        address = request.form.get('address')
-        pickup_point = 'Клоповник'
+        address = request.form.get('address', '').strip()
         if not address:
-            flash('Заполните адрес доставки!', 'danger')
-            return redirect(url_for('checkout'))
+            address = 'Самовывоз с ПВЗ Клоповник'
+        pickup_point = 'Клоповник'
         user = db.get_user(session['user_id'])
         total = 0
         for item in cart_items:
