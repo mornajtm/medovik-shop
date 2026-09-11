@@ -13,11 +13,12 @@ import datetime
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(32)
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # 32 МБ
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'avatars'), exist_ok=True)
+os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'ads'), exist_ok=True)
 
 db = Database()
 
@@ -28,15 +29,12 @@ def get_minecraft_avatar(username):
     try:
         skin_url = f"https://crafatar.com/skins/{username}"
         response = requests.get(skin_url, timeout=10)
-        
         if response.status_code == 200:
             skin_image = Image.open(BytesIO(response.content))
             head = skin_image.crop((8, 8, 16, 16))
             head = head.resize((100, 100), Image.NEAREST)
-            
             avatar_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'avatars')
             os.makedirs(avatar_dir, exist_ok=True)
-            
             avatar_path = os.path.join(avatar_dir, f'avatar_{username}.png')
             head.save(avatar_path, 'PNG')
             return f'uploads/avatars/avatar_{username}.png'
@@ -147,24 +145,18 @@ def upload_avatar():
     if not file or not allowed_file(file.filename):
         flash('Выберите изображение (png, jpg, jpeg, gif, webp)', 'danger')
         return redirect(url_for('profile'))
-
     user = db.get_user(session['user_id'])
     filename = secure_filename(f"user_{user['id']}_{int(datetime.datetime.now().timestamp())}_{file.filename}")
     avatar_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'avatars')
     os.makedirs(avatar_dir, exist_ok=True)
-
-    # Удаляем старую загруженную вручную аватарку
     if user.get('avatar') and 'avatars/user_' in user['avatar']:
         old_path = os.path.join(app.config['UPLOAD_FOLDER'], user['avatar'].replace('uploads/', ''))
         try:
             os.remove(old_path)
         except:
             pass
-
     filepath = os.path.join(avatar_dir, filename)
     file.save(filepath)
-
-    # Обрезаем до квадрата и уменьшаем
     try:
         img = Image.open(filepath).convert('RGBA')
         size = min(img.size)
@@ -175,7 +167,6 @@ def upload_avatar():
         img.save(filepath, 'PNG')
     except Exception as e:
         print(f"Ошибка обработки аватарки: {e}")
-
     db.update_user_avatar_by_id(user['id'], f'uploads/avatars/{filename}')
     flash('Аватарка обновлена!', 'success')
     return redirect(url_for('profile'))
@@ -372,9 +363,17 @@ def add_product():
             return redirect(url_for('admin_products'))
         file = request.files.get('image')
         filename = None
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        if file and file.filename and allowed_file(file.filename):
+            ext = file.filename.rsplit('.', 1)[1].lower()
+            filename = f"product_{int(datetime.datetime.now().timestamp())}.{ext}"
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
+            try:
+                img = Image.open(filepath).convert('RGB')
+                img.thumbnail((800, 800), Image.LANCZOS)
+                img.save(filepath, optimize=True, quality=85)
+            except Exception as e:
+                print(f"Ошибка обработки фото товара: {e}")
         db.add_product(name, desc, category, price, stock, filename, discount)
         flash('Товар добавлен', 'success')
     except Exception as e:
@@ -408,9 +407,25 @@ def add_ad():
     link = request.form.get('link', '')
     file = request.files.get('image')
     filename = None
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+    if file and file.filename:
+        if not allowed_file(file.filename):
+            flash('Формат не поддерживается. Разрешены: png, jpg, jpeg, gif, webp', 'danger')
+            return redirect(url_for('admin_ads'))
+        ext = file.filename.rsplit('.', 1)[1].lower()
+        filename = f"ad_{int(datetime.datetime.now().timestamp())}.{ext}"
+        ads_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'ads')
+        os.makedirs(ads_dir, exist_ok=True)
+        filepath = os.path.join(ads_dir, filename)
+        file.save(filepath)
+        try:
+            img = Image.open(filepath).convert('RGB')
+            img.thumbnail((1200, 1200), Image.LANCZOS)
+            img.save(filepath, optimize=True, quality=85)
+        except Exception as e:
+            print(f"Ошибка обработки рекламы: {e}")
+        filename = f"ads/{filename}"
+
     db.add_ad(title, text, link, filename)
     flash('Реклама добавлена!', 'success')
     return redirect(url_for('admin_ads'))
@@ -435,7 +450,6 @@ def admin_toggle_ad(ad_id):
     flash('Статус рекламы изменён', 'info')
     return redirect(url_for('admin_ads'))
 
-# ⬇️⬇️⬇️ ВОТ ЭТО ИСПРАВЛЕНО ⬇️⬇️⬇️
 @app.route('/uploads/<path:filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
